@@ -1,0 +1,67 @@
+<html>
+<head>
+  <title>SCALE AV Splitter</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="static/styles.css">
+</head>
+<body>
+  <div class="main">
+
+    <div class="left">
+      <h1 class="mb-4">Sunday - Room 212</h1>
+      <div id="player" data-vid="2VHtwQW4qA8"></div>
+    </div>
+
+    <div class="right">
+      <button type="button" class="btn btn-primary mb-3">Submit</button>
+      <div class="cuts">
+
+        <div class="cut" data-id="1">
+          <button class="btn btn-secondary cut-header">
+            <span class="cut-video-time"></span>
+            <span class="cut-title">Lorem ipsum</span>
+          </button>
+          <div class="cut-contents">
+            <textarea class="cut-description form-control cut-description mb-2" rows="2" readonly></textarea>
+            <label>Scheduled time: 09:00 to 10:00</label><br>
+            <div class="cut-controls">
+              <div class="cut-time pr-2">
+                <label>Video start</label>
+                <input type="text" class="form-control mb-1" placeholder="0:00:00">
+                <button type="button" class="btn btn-default" aria-label="Left Align">
+                  <img src="static/icons/play-fill.svg" alt="" width="24" height="24">
+                </button>
+                <button type="button" class="btn btn-default" aria-label="Left Align">
+                  <img src="static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
+                </button>
+              </div>
+              <div class="cut-time pr-2">
+                <label>Video end</label>
+                <input type="text" class="form-control mb-1" placeholder="0:00:00">
+                <button type="button" class="btn btn-default" aria-label="Left Align">
+                  <img src="static/icons/play-fill.svg" alt="" width="24" height="24">
+                </button>
+                <button type="button" class="btn btn-default" aria-label="Left Align">
+                  <img src="static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
+                </button>
+                <br>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="cut">
+          <button class="btn btn-secondary cut-header">(01:45:12-02:30:54) Lorem ipsum</button>
+          <div class="cut-contents">
+            <p>Lorem ipsum...</p>
+          </div>
+        </div>
+      </div>
+		</div>
+  </div>
+
+  <script src="static/splitter.js"></script>
+  <script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
