@@ -61,7 +61,7 @@ def roomday(day, room):
 @commit_db
 def vid():
     room_day_id = expect(request, 'id')
-    vid = expect(request, 'vid')
+    video_id = expect(request, 'vid')
 
     # Check for admin permissions
     if not is_admin():
@@ -72,7 +72,7 @@ def vid():
     if not room_day:
         input_error()
 
-    room_day.vid = vid;
+    room_day.vid = video_id
     return {}
 
 @app.route('/xml', methods=['POST'])
@@ -97,7 +97,8 @@ def xml():
 @app.route('/json')
 @catch_error
 def generate_json():
-    get_all = expect(request, "all", optional=True)
+    approved_only = expect(request, "approved", optional=True)
+    day = expect(request, "day", optional=True)
 
     room_days_info = []
 
@@ -115,10 +116,18 @@ def generate_json():
                     "path": talk.path,
                     "start": talk.start,
                     "end": talk.end,
+                    "edit_status": talk.edit_status,
+                    "review_status": talk.review_status,
                 }
-                for talk in room_day.talks if get_all == "1" or (talk.review_status == ReviewStatus[1] and talk.edit_status == EditStatus[1])
+                for talk in room_day.talks
             ],
         }
+        if day and room_day_info["day"] != day:
+            room_day_info["talks"] = []
+        if approved_only:
+            room_day_info["talks"] = list(talk for talk in room_day_info["talks"] \
+                                            if (talk["edit_status"] == EditStatus[1] and
+                                                talk["review_status"] == ReviewStatus[1]))
         if len(room_day_info["talks"]) > 0:
             room_days_info.append(room_day_info)
 
