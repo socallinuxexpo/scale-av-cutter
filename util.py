@@ -41,10 +41,16 @@ def commit_db(inner):
 def error(msg):
     raise ScaleAVSplitterError(msg)
 
+def admin_error():
+    error('Incorrect admin credentials')
+
 def input_error():
     error('Input error')
 
-def expect(request, arg):
+def expect(request, arg, optional=False):
     if arg not in request.values:
-        input_error()
+        if not optional:
+            input_error()
+        else:
+            return None
     return request.values[arg]

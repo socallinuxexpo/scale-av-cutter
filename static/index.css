@@ -1,0 +1,28 @@
+body {
+  margin: 20px;
+}
+
+#talks {
+  margin-bottom: 50px;
+}
+
+.roomday-no-vid {
+  font-weight: bold;
+  color: #e55;
+}
+
+.roomday-status {
+  font-weight: bold;
+}
+
+.roomday-status-cut {
+  color: #e6a100;
+}
+
+.roomday-status-review {
+  color: #b206ca;
+}
+
+.roomday-status-done {
+  color: #5e5;
+}

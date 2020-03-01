@@ -1,5 +1,5 @@
 from app import db
-from models import RoomDay, Cut
+from models import RoomDay, Talk
 
 from xml.etree.ElementTree import fromstring
 from flask import Markup
@@ -19,8 +19,10 @@ def parse_signxml(data):
         start_time = iso8601.parse_date(start.get("content"))
         end_time = iso8601.parse_date(end.get("content"))
         title = node.find("Title").text
-        speaker = node.find("Speakers").text
+        speakers = node.find("Speakers").text
+        speakers = speakers if speakers is not None else ""
         description = Markup(node.find("Short-abstract").text).striptags()
+        description = description if description is not None else ""
         path = node.find("Path").text
         room = node.find("Room").text
         day = Markup(node.find("Day").text).striptags()
@@ -31,7 +33,7 @@ def parse_signxml(data):
             "start": start_time,
             "end": end_time,
             "title": title,
-            "speaker": speaker,
+            "speakers": speakers,
             "description": description,
         }
         talks.append(talk)
@@ -49,31 +51,33 @@ def import_talks(talks):
             room_day = RoomDay(
                 room = talk['room'],
                 day = talk['day'],
-                vid = None
+                date = talk['start'].date(),
+                vid = '',
             )
             db.session.add(room_day)
             db.session.flush()
 
-        # Create cut data
-        cut_data = Cut(
+        # Create talk data
+        talk_data = Talk(
             room_day_id = room_day.id,
             path = talk['path'],
+            speakers = talk['speakers'],
             sched_start = talk['start'].strftime("%H:%M"),
             sched_end = talk['end'].strftime("%H:%M"),
             title = talk['title'],
             description = talk['description'],
         )
         
-        # See if the Cut already exists
-        cut = db.session.query(Cut)\
-                    .filter(Cut.path == talk['path'])\
+        # See if the Talk already exists
+        talk = db.session.query(Talk)\
+                    .filter(Talk.path == talk['path'])\
                     .first()
-        if not cut:
-            db.session.add(cut_data)
+        if not talk:
+            db.session.add(talk_data)
         else:
-            # If cut already exists, we may need to update some of its fields
-            cut.room_day_id = cut_data.room_day_id
-            cut.sched_start = cut_data.sched_start
-            cut.sched_end = cut_data.sched_end
-            cut.title = cut_data.title
-            cut.description = cut_data.description
+            # If talk already exists, we may need to update some of its fields
+            talk.room_day_id = talk_data.room_day_id
+            talk.sched_start = talk_data.sched_start
+            talk.sched_end = talk_data.sched_end
+            talk.title = talk_data.title
+            talk.description = talk_data.description
