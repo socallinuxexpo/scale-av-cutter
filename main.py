@@ -186,8 +186,8 @@ def review():
         input_error()
 
     # If edit status is incomplete, we can't review it
-    if talk.edit_status == EditStatus[1]:
-        error("Cannot be modified because this talk has already been approved")
+    if talk.edit_status == EditStatus[0]:
+        error("Cannot review an incomplete cut. If unusable, mark it as such first, and approve it.")
 
     # Edit
     talk.review_status = status
