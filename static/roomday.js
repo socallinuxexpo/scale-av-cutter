@@ -32,13 +32,18 @@ document.addEventListener("DOMContentLoaded", function(){
       const timeSeek = talkTime.querySelector(".talk-time-seek");
       const timeSample = talkTime.querySelector(".talk-time-sample");
       timeSeek.addEventListener("click", () => {
+        if (player == null) {
+          return;
+        }
         const timestamp = parseTimeInput(timeInput.value);
-        if (timestamp === null) {
-        } else {
+        if (timestamp != null) {
           player.seekTo(timestamp, true);
         }
       });
       timeSample.addEventListener("click", () => {
+        if (player == null) {
+          return;
+        }
         const origValue = timeInput.value;
         const timeStr = convertTimeInput(player.getCurrentTime());
         if (origValue != timeStr) {
