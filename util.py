@@ -3,19 +3,13 @@ from functools import wraps
 
 from app import db
 
-class ScaleAVSplitterError(Exception):
+class ScaleAVCutterError(Exception):
     def __init__(self, msg, *args):
-        super(ScaleAVSplitterError, self).__init__(*args)
+        super(ScaleAVCutterError, self).__init__(*args)
         self.msg = msg
 
     def __repr__(self):
         return self.msg
-
-def jsonify(inner):
-    @wraps(inner)
-    def wrapper(*args, **kwargs):
-        return flask.jsonify(inner(*args, **kwargs))
-    return wrapper
 
 def catch_error(inner):
     @wraps(inner)
@@ -39,7 +33,7 @@ def commit_db(inner):
     return wrapper
 
 def error(msg):
-    raise ScaleAVSplitterError(msg)
+    raise ScaleAVCutterError(msg)
 
 def admin_error():
     error('Incorrect admin credentials')
