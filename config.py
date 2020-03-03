@@ -5,6 +5,8 @@ class Config(object):
     TESTING = False
     CSRF_ENABLED = True
     SECRET_KEY = os.environ['SECRET_KEY']
+    EDITOR_KEY = os.environ['EDITOR_KEY']
+    REVIEWER_KEY = os.environ['REVIEWER_KEY']
     ADMIN_KEY = os.environ['ADMIN_KEY']
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     SQLALCHEMY_TRACK_MODIFICATIONS = False

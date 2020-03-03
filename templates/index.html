@@ -12,11 +12,32 @@
 
   <p>Source code: <a href="https://github.com/socallinuxexpo/scale-av-cutter">https://github.com/socallinuxexpo/scale-av-cutter</a></p>
 
+  <h3>Access</h3>
+  {% if level == 0 %}
+  {% if fail %}<p class="failed">Incorrect password</p>{% endif %}
+  <form action="/login" method="post">
+    <p>Enter a group password to enable access.</p>
+    <div class="input-group mb-1">
+      <input class="form-control mr-1" type="password" name="password" id="password">
+      <button type="button" class="show-hide btn btn-default" aria-label="Show hide password">
+        <img class="show-hide-set-visible" src="/static/icons/eye-fill.svg" alt="" width="24" height="24">
+        <img class="show-hide-set-hidden" src="/static/icons/eye-slash-fill.svg" alt="" width="24" height="24" hidden>
+      </button>
+    </div>
+    <button class="btn btn-primary mb-1" type="submit" id="login">Login</button>
+  </form>
+  {% else %}
+  <form action="/logout" method="post">
+    {% set access_names = {1:"Editor", 2:"Reviewer", 3:"Admin"} %}
+    <label>Access level: <strong>{{ access_names[level] }}</strong></label>
+    <button class="btn-sm btn-secondary float-right" type="submit" id="logout">Logout</button>
+  </form>
+
   <h3>Status</h3>
   <div id="talks">
     {% for room_day in room_days %}
     <div class="roomday" data-id="{{ room_day.id }}" data-vid="{{ room_day.vid }}">
-      {% if is_admin %}<button type="button" class="roomday-vid">VID</button>{% endif %}
+      {% if level >= 3 %}<button type="button" class="roomday-vid">VID</button>{% endif %}
       <span class="roomday-no-vid" {% if room_day.vid %}hidden{% endif %}>(NO VID)</span>
       <span class="roomday-status" {% if not room_day.vid %}hidden{% endif %}>
       {% if statuses[room_day.id] == 0 %}<span class="roomday-status-cut">(NEEDS CUT)</span>{% endif %}
@@ -27,6 +48,7 @@
     </div>
     {% endfor %}
   </div>
+  {% endif %}
 
   <script src="/static/index.js"></script>
 </body>

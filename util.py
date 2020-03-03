@@ -35,8 +35,8 @@ def commit_db(inner):
 def error(msg):
     raise ScaleAVCutterError(msg)
 
-def admin_error():
-    error('Incorrect admin credentials')
+def access_error():
+    error('Insufficient access level')
 
 def input_error():
     error('Input error')

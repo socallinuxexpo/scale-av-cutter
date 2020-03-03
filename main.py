@@ -1,12 +1,12 @@
 import urllib
-from flask import render_template, request, send_from_directory, abort
+from flask import render_template, request, send_from_directory, abort, redirect, make_response
 
 from app import app, db
 
 from models import *
 db.create_all()
 
-from util import catch_error, expect, commit_db, input_error, admin_error, error
+from util import catch_error, expect, commit_db, input_error, access_error, error
 from signxml import parse_signxml, import_talks
 
 def room_days_query():
@@ -16,34 +16,66 @@ def room_days_query():
                 .join(Talk)\
                 .order_by(Talk.sched_start)
 
-def is_admin():
-    if 'password' not in request.cookies:
-        return False
-    if request.cookies['password'] != app.config['ADMIN_KEY']:
-        return False
-    return True
+def access_level(password=None):
+    if password is None:
+        password = request.cookies.get('password', None)
+
+    # Yes, it's vulnerable to timing attacks. Ping the maintainer if this
+    # really matters.
+    if password == app.config['EDITOR_KEY']:
+        return 1
+    elif password == app.config['REVIEWER_KEY']:
+        return 2
+    elif password == app.config['ADMIN_KEY']:
+        return 3
+    return 0
 
 @app.route('/')
 def index():
-    room_days = room_days_query().all()
-
+    level = access_level()
+    room_days = []
     statuses = {}
-    for room_day in room_days:
-        finished_cutting = all(talk.edit_status != EditStatus[0] for talk in room_day.talks)
-        finished_reviewing = all(talk.review_status != ReviewStatus[0] for talk in room_day.talks)
-        if not finished_cutting:
-            status = 0
-        elif not finished_reviewing:
-            status = 1
-        else:
-            status = 2
-        statuses[room_day.id] = status
+    fail = expect(request, "fail", optional=True)
 
-    return render_template("index.html", room_days=room_days, statuses=statuses, is_admin=is_admin())
+    if level > 0:
+        room_days = room_days_query().all()
 
-@app.route('/admin')
-def admin():
-    return render_template("admin.html")
+        for room_day in room_days:
+            finished_cutting = all(talk.edit_status != EditStatus[0] for talk in room_day.talks)
+            finished_reviewing = all(talk.review_status != ReviewStatus[0] for talk in room_day.talks)
+            if not finished_cutting:
+                status = 0
+            elif not finished_reviewing:
+                status = 1
+            else:
+                status = 2
+            statuses[room_day.id] = status
+
+    return render_template("index.html",
+                           level=level,
+                           fail=fail,
+                           room_days=room_days,
+                           statuses=statuses)
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    resp = make_response(redirect('/'))
+    resp.set_cookie('password', expires=0)
+    return resp
+
+@app.route('/login', methods=['POST'])
+def login():
+    password = expect(request, 'password', optional=True)
+    level = access_level(password)
+
+    if level > 0:
+        resp = make_response(redirect('/'))
+        resp.set_cookie('password', password)
+    else:
+        resp = make_response(redirect('/?fail=1'))
+        resp.set_cookie('password', expires=0)
+
+    return resp
 
 @app.route('/<day>/<room>')
 def roomday(day, room):
@@ -54,18 +86,22 @@ def roomday(day, room):
     if not room_day:
         abort(404)
 
-    return render_template("roomday.html", room_day=room_day, EditStatus=EditStatus, ReviewStatus=ReviewStatus, is_admin=is_admin())
+    return render_template("roomday.html",
+                           level=access_level(),
+                           room_day=room_day,
+                           EditStatus=EditStatus,
+                           ReviewStatus=ReviewStatus)
 
 @app.route('/vid', methods=['POST'])
 @catch_error
 @commit_db
 def vid():
+    # Check for access level
+    if access_level() < 3:
+        access_error()
+
     room_day_id = expect(request, 'id')
     video_id = expect(request, 'vid')
-
-    # Check for admin permissions
-    if not is_admin():
-        admin_error()
 
     # Get room day
     room_day = db.session.query(RoomDay).get(room_day_id)
@@ -79,11 +115,11 @@ def vid():
 @catch_error
 @commit_db
 def xml():
-    url = expect(request, 'url')
+    # Check for access level
+    if access_level() < 3:
+        access_error()
 
-    # Check for admin permissions
-    if not is_admin():
-        admin_error()
+    url = expect(request, 'url')
 
     # Parse sign xml
     with urllib.request.urlopen(url) as response:
@@ -97,6 +133,10 @@ def xml():
 @app.route('/json')
 @catch_error
 def generate_json():
+    # Check for access level
+    if access_level() < 1:
+        access_error()
+
     approved_only = expect(request, "approved", optional=True)
     day = expect(request, "day", optional=True)
 
@@ -137,6 +177,10 @@ def generate_json():
 @catch_error
 @commit_db
 def edit():
+    # Check for access level
+    if access_level() < 1:
+        access_error()
+
     talk_id_str = expect(request, 'id')
     start_str = expect(request, 'start')
     end_str = expect(request, 'end')
@@ -166,12 +210,12 @@ def edit():
 @catch_error
 @commit_db
 def review():
+    # Check for access level
+    if access_level() < 2:
+        access_error()
+
     talk_id_str = expect(request, 'id')
     status = expect(request, 'status')
-
-    # Check for admin permissions
-    if not is_admin():
-        admin_error()
 
     # Basic validation
     try:

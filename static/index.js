@@ -2,6 +2,29 @@
 
 // Main
 document.addEventListener("DOMContentLoaded", function(){
+
+  // Show-hide buttons
+  const showHideButtons = document.querySelectorAll(".show-hide");
+  for (const showHideButton of showHideButtons) {
+    const field = showHideButton.previousElementSibling;
+    const setVisible = showHideButton.querySelector(".show-hide-set-visible");
+    const setHidden = showHideButton.querySelector(".show-hide-set-hidden");
+    if (field != null && field.tagName == "INPUT") {
+      showHideButton.addEventListener("click", () => {
+        const type = field.getAttribute("type");
+        if (type === "text") {
+          field.setAttribute("type", "password");
+          setVisible.hidden = false;
+          setHidden.hidden = true;
+        } else if (type === "password") {
+          field.setAttribute("type", "text");
+          setVisible.hidden = true;
+          setHidden.hidden = false;
+        }
+      });
+    }
+  }
+
   
   // Room day stuff
   const roomdays = document.querySelectorAll(".roomday");
