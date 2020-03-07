@@ -79,6 +79,10 @@ def login():
 
 @app.route('/<day>/<room>')
 def roomday(day, room):
+    # Check for access level
+    if access_level() < 1:
+        abort(403)
+
     room_day = room_days_query()\
                     .filter(RoomDay.room == room)\
                     .filter(RoomDay.day == day)\
@@ -236,6 +240,10 @@ def review():
     # Edit
     talk.review_status = status
     return {}
+
+@app.errorhandler(403)
+def forbidden(e):
+    return (render_template('403.html'), 403)
 
 @app.route('/static/<path:path>')
 def send_static(path):
