@@ -3,3 +3,9 @@ env/
 __pycache__/
 *.pyc
 *.pyo
+
+# Defaults
+workdir/
+credentials.json
+client_secrets.json
+progress.json
