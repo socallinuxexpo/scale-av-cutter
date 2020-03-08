@@ -4,7 +4,7 @@ scale-av-cutter
 Flask application to streamline process of splitting captured day-long
 recordings into separate talks.
 
-Note that if you only want to run the [tools][./tools], you won't need to
+Note that if you only want to run the [tools](./tools), you won't need to
 install the dependencies for this Flask app.
 
 
@@ -72,5 +72,5 @@ curl \
 This endpoint also accepts a "day" parameter to filter by Thursday, Friday,
 etc.
 
-Once you have this JSON file, you can check out the [tools][./tools] to
+Once you have this JSON file, you can check out the [tools](./tools) to
 actually process the cuts.
