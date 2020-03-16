@@ -1,4 +1,5 @@
 import urllib
+from googleapiclient.discovery import build
 from flask import render_template, request, send_from_directory, abort, redirect, make_response
 
 from app import app, db
@@ -24,9 +25,9 @@ def access_level(password=None):
     # really matters.
     if password == app.config['EDITOR_KEY']:
         return 1
-    elif password == app.config['REVIEWER_KEY']:
+    if password == app.config['REVIEWER_KEY']:
         return 2
-    elif password == app.config['ADMIN_KEY']:
+    if password == app.config['ADMIN_KEY']:
         return 3
     return 0
 
@@ -239,6 +240,71 @@ def review():
 
     # Edit
     talk.review_status = status
+    return {}
+
+@app.route('/auto_vids', methods=['POST'])
+@catch_error
+@commit_db
+def auto_vids():
+    # Check for access level
+    if access_level() < 3:
+        access_error()
+
+    api_key = expect(request, "api_key")
+    channel_id = expect(request, "channel_id")
+    query = expect(request, "query", optional=True)
+
+    # Fetch all room days
+    room_days = room_days_query().all()
+
+    # Fetch all videos from SCALE YT channel
+    yt = build('youtube', 'v3', developerKey=api_key)
+    page_token = None
+    while True:
+        req = yt.search().list(
+            part="snippet",
+            channelId=channel_id,
+            type="video",
+            order="date",
+            maxResults=50,
+            q=query,
+            pageToken=page_token)
+        res = req.execute()
+
+        # Insert VID into matching room days
+        done = True
+        for room_day in room_days:
+            if room_day.vid == "":
+                for video in res['items']:
+                    if video["snippet"]["title"].startswith(f"{room_day.room} {room_day.day}"):
+                        room_day.vid = video["id"]["videoId"]
+                        break
+                else:
+                    done = False
+        if done:
+            break
+
+        # Next page
+        if "nextPageToken" in res:
+            page_token = res["nextPageToken"]
+        else:
+            break
+
+    return {}
+
+@app.route('/clear_vids', methods=['POST'])
+@catch_error
+@commit_db
+def clear_vids():
+    # Check for access level
+    if access_level() < 3:
+        access_error()
+
+    # Clear VID from all room days
+    room_days = room_days_query().all()
+    for room_day in room_days:
+        room_day.vid = ""
+
     return {}
 
 @app.errorhandler(403)
