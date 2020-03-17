@@ -12,15 +12,21 @@ vformat = "mp4"
 def rdash(s):
     return re.sub('[^0-9a-zA-Z]+', '-', s)
 
-def download_video(vid, outfile):
+def download_video(vid, outfile, container_format):
     """
     Returns boolean indicating success or failure
     """
     url = f"https://youtube.com/watch?v={vid}"
+
+    download_format = "bestvideo+bestaudio"
+    if container_format == "mp4":
+        download_format = "bestvideo[ext=mp4]+bestaudio[ext=m4a]"
+
     ret = subprocess.call([
         "youtube-dl",
-        "-o", outfile,  # Output
-        url,            # Youtube URL
+        "-o", outfile,          # Output filename
+        "-f", download_format,  # Output container format
+        url,                    # Youtube URL
     ])
     return ret == 0
 
@@ -71,7 +77,7 @@ def main():
         os.makedirs(subdir_path, exist_ok=True)
 
         # Attempt to download video
-        if not download_video(vid, outfile=video_path):
+        if not download_video(vid, outfile=video_path, container_format=vformat):
             if args.skip_download_failure:
                 print(f"WARNING: Failed to download {room} {day} video {vid}. Skipping.")
                 continue
