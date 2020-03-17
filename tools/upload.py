@@ -126,7 +126,7 @@ def main():
     for talk in talks:
         size = os.path.getsize(talk["file"])
         print(f"Uploading \"{talk['title']}\" ({size} bytes)...")
-        video = MediaFileUpload(talk['file'])
+        video = MediaFileUpload(talk['file'], chunksize=1024*1024, resumable=True)
         request = yt.videos().insert(
             part="id,snippet,status",
             body={
