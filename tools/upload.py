@@ -135,7 +135,7 @@ def main():
                     "description": talk["description"],
                 },
                 "status": {
-                    "privacy_status": args.privacy,
+                    "privacyStatus": args.privacy,
                 },
             },
             media_body=video)
