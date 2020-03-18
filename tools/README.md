@@ -32,6 +32,23 @@ account. It also requires data from the webapp's json endpoint, in order to
 know where split.py placed all the talk videos, and what title/description to
 upload the videos with.
 
+### Authentication/Authorization
+
+To interact with Google's API, we need to understand its flow at a high level.
+
+1. Authentication. This script needs to authenticate to Google, via a "client
+   id" and "client secret", so they track the request quota. You can create a
+   Google API "client" or "application", and download a `client_secrets.json`
+   to use this script, but it'll only have enough quota to upload 4-5 videos.
+   Either request a higher limit with Google, or ask a SCaLE AV maintainer for
+   a client with higher limit.
+
+2. Authorization. When using this script for the first time, it will ask you to
+   login to a Google account, which then authorizes the script (via OAuth) to
+   upload videos.
+
+### Behavior
+
 upload.py will upload videos with the exact same title as the talk, and a video
 description of the format:
 
