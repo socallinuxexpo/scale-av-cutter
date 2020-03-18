@@ -32,4 +32,25 @@ account. It also requires data from the webapp's json endpoint, in order to
 know where split.py placed all the talk videos, and what title/description to
 upload the videos with.
 
+upload.py will upload videos with the exact same title as the talk, and a video
+description of the format:
+
+```
+{speakers}
+
+{url to talk in SCaLE website}
+
+{talk description}
+```
+
+Note that the title and video description will be validated to conform to the
+[YouTube
+specs](https://developers.google.com/youtube/terms/required-minimum-functionality#data-requirements)
+(last checked, 2020-03-17). If invalid, upload.py allows the user to optionally
+specify a `youtube_title` and `youtube_description` in the JSON that will be
+used for uploading to YouTube.
+
+By default, videos will be uploaded as unlisted, but this can be changed with a
+flag if desired.
+
 Run it with -h to see the options.

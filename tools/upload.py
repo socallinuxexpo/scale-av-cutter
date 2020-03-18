@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import os
-import sys
 import json
 import argparse
 import re
@@ -15,6 +14,20 @@ vformat = "mp4"
 def rdash(s):
     return re.sub('[^0-9a-zA-Z]+', '-', s)
 
+def validate_youtube_title(title):
+    # https://developers.google.com/youtube/terms/required-minimum-functionality#data-requirements
+    if len(title) > 100:
+        raise Exception(f"Title '{title}' is longer than 100 characters. Modify JSON to include a valid youtube_title field.")
+    if "<" in title or ">" in title:
+        raise Exception(f"Title '{title}' contains an invalid character. Modify JSON to include a valid youtube_title field.")
+
+def validate_youtube_description(desc):
+    # https://developers.google.com/youtube/terms/required-minimum-functionality#data-requirements
+    if len(desc.encode('utf-8')) > 5000:
+        raise Exception(f"Description '{desc}' is longer than 5000 bytes. Modify JSON to include a valid youtube_description field.")
+    if "<" in desc or ">" in desc:
+        raise Exception(f"Description '{desc}' contains an invalid character. Modify JSON to include a valid youtube_description field.")
+
 def obtain_credentials_from_flow(client_file):
     flow = InstalledAppFlow.from_client_secrets_file(
         client_file,
@@ -27,14 +40,14 @@ def obtain_credentials_from_token(token_file):
         token_file,
         scopes=['https://www.googleapis.com/auth/youtube'])
 
-def make_video_description(talk):
+def make_video_description(talk, desc):
     link = "https://www.socallinuxexpo.org" + talk["path"]
     return f"""\
 Talk by {talk["speakers"]}
 
 {link}
 
-{talk["description"]}"""
+{desc}"""
 
 def collect_talks(room_days, workdir):
     talks = []
@@ -47,16 +60,19 @@ def collect_talks(room_days, workdir):
         subdir_path = os.path.join(workdir, room_day_name)
 
         for talk in room_day["talks"]:
-            title = rdash(talk["title"])
-
-            talk_name = f"{title}.{vformat}"
+            talk_title = rdash(talk["title"])
+            talk_name = f"{talk_title}.{vformat}"
             talk_path = os.path.join(subdir_path, talk_name)
             if not os.path.isfile(talk_path):
                 talk_path = None
+            youtube_title = talk.get("youtube_title", talk["title"])
+            youtube_desc = make_video_description(talk, talk.get("youtube_description", talk["description"]))
+            validate_youtube_title(youtube_title)
+            validate_youtube_description(youtube_desc)
             talks.append({
                 "path": talk["path"],
-                "title": talk["title"],
-                "description": make_video_description(talk),
+                "title": youtube_title,
+                "description": youtube_desc,
                 "file": talk_path,
             })
 
@@ -92,11 +108,11 @@ def main():
     filtered_talks = []
     for talk in talks:
         if talk["file"] is None and not args.skip_missing_talks:
-            sys.exit(f"ERROR: video for {talk['title']} not found.")
-        elif talk["file"] is None and args.skip_missing_talks:
+            raise Exception(f"Video for {talk['title']} not found.")
+        if talk["file"] is None and args.skip_missing_talks:
             print(f"WARNING: video for {talk['title']} not found. Skipping.")
             continue
-        elif talk["path"] in progress:
+        if talk["path"] in progress:
             print(f"Already uploaded: {talk['title']}.")
             continue
         print(f"Found talk: {talk['title']}")
