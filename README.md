@@ -77,6 +77,13 @@ machine. Let's say you do the latter (make sure you have all of the required [en
 gunicorn main:app
 ```
 
+By default, gunicorn binds to localhost, port 8000. To open it up to the world
+at a specific port (e.g. 8000), run it as:
+
+```
+gunicorn -b 0.0.0.0:8000 main:app
+```
+
 You can then import all the talks of a year via the `/xml` endpoint, passing it
 a URL to the year's signxml.
 
