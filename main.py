@@ -13,9 +13,7 @@ from signxml import parse_signxml, import_talks
 def room_days_query():
     return db.session.query(RoomDay)\
                 .order_by(RoomDay.date)\
-                .order_by(RoomDay.room)\
-                .join(Talk)\
-                .order_by(Talk.sched_start)
+                .order_by(RoomDay.room)
 
 def access_level(password=None):
     if password is None:
