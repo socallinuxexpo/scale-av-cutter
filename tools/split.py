@@ -18,9 +18,9 @@ def download_video(vid, outfile, container_format):
     """
     url = f"https://youtube.com/watch?v={vid}"
 
-    download_format = "bestvideo+bestaudio"
+    download_format = "bestvideo+bestaudio/best"
     if container_format == "mp4":
-        download_format = "bestvideo[ext=mp4]+bestaudio[ext=m4a]"
+        download_format = "mp4"
 
     ret = subprocess.call([
         "youtube-dl",
