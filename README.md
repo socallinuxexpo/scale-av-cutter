@@ -4,19 +4,54 @@ scale-av-cutter
 Flask application to streamline process of splitting captured day-long
 recordings into separate talks.
 
-Note that if you only want to run the [tools](./tools), you won't need to
-install the dependencies for this Flask app.
+Note that if you only want to run the [tools](./tools) for downloading,
+cutting, and uploading videos, you can just install the dependencies described
+in that directory, instead of the dependencies for this Flask app.
 
 
-Requirements
+Dependencies
 ---
 
-I'm sorry, but you must use Python 3.6+. Recommended to use virtualenv to
-install requirements.
+By default, this app assumes the use of PostgreSQL as the backing database, so
+you must install a bunch of build tools as well Postgresql itself. If you only
+want to run this **locally**, it's far easier to just use SQLite. You can
+either edit `requirements.txt` and take out the `psycopg2` requirement, or just
+filter it out when performing the pip install.
+
+### PostgreSQL dependencies
+
+This section is only for if you want to use PostgreSQL as the backing database,
+and/or don't mind installing the `psycopg2` requirement.
+
+Install the following from your package manager.
+
+CentOS-based:
+
+```
+sudo yum install postgresql postgresql-devel gcc python3-devel
+```
+
+Debian-based:
+
+```
+sudo apt install postgresql libpq-dev gcc python3-dev
+```
+
+### Python dependencies
+
+I recommend using virtualenv to manage isolate the dependencies you'll need for
+this project. Use either your package manager or pip to install virtualenv
+itself, create an environment, and activate it.
+
+Then:
 
 ```
 pip install -r requirements.txt
 ```
+
+If you see an error with building wheel for psycopg2, you will need to follow
+the [PostgreSQL dependencies](#postgresql-dependencies) section first. If the
+error persists, file an issue.
 
 
 Config
@@ -36,14 +71,14 @@ Usage
 ---
 
 Run scale-av-cutter somewhere, like Heroku, a cloud VM, or even your local
-machine. Let's say you do the latter.
+machine. Let's say you do the latter (make sure you have all of the required [environment variables](#config) set).
 
 ```
 gunicorn main:app
 ```
 
-You should then import all the talks of a year via the `/xml` endpoint, passing
-it a URL to the year's signxml.
+You can then import all the talks of a year via the `/xml` endpoint, passing it
+a URL to the year's signxml.
 
 ```
 curl \
