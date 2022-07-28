@@ -23,6 +23,7 @@ class Talk(db.Model):
     sched_end   = db.Column(db.Text, nullable=False)
     title       = db.Column(db.Text, nullable=False)
     description = db.Column(db.Text, nullable=False)
+    notes       = db.Column(db.Text, nullable=False, default="")
 
     start       = db.Column(db.Integer, default=0, nullable=False)
     end         = db.Column(db.Integer, default=0, nullable=False)
