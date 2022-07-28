@@ -73,6 +73,30 @@ document.addEventListener("DOMContentLoaded", function(){
         });
       }
     }
+
+    // Notes initialized to their textcontent
+    const notes = talk.querySelector(".notes");
+    notes.value = notes.textContent;
+
+    // Notes save button
+    const notesSaveButton = talk.querySelector(".notes-save");
+    notesSaveButton.addEventListener("click", (e) => {
+      saveNotes(talk, notes, notesSaveButton);
+      e.preventDefault();
+    });
+    // Disabled by default
+    disableNotesSaveButton(notesSaveButton);
+    // Enables save button on any input
+    notes.addEventListener("input", () => {
+      enableNotesSaveButton(notesSaveButton);
+    });
+    // Small QoL that re-disables button if content is same. We're abusing
+    // textContent to store the "saved" version.
+    notes.addEventListener("blur", () => {
+      if (notes.value == notes.textContent) {
+        disableNotesSaveButton(notesSaveButton);
+      }
+    });
   }
 });
 
@@ -181,5 +205,49 @@ function updateTalkColor(talk) {
     header.classList.add("btn-warning");
   } else {
     header.classList.add("btn-secondary");
+  }
+}
+
+function saveNotes(talk, notes, notesSaveButton) {
+  const talkId = talk.dataset.id;
+  const value = notes.value;
+
+  const formData = new FormData();
+  formData.append("id", talkId);
+  formData.append("notes", value);
+  console.log("Saving notes for " + talkId);
+  fetch("/save_notes", {
+    method: "POST",
+    body: formData,
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      if (data.error != null) {
+        window.alert("ERROR: " + data.error);
+      }
+      else {
+        notes.textContent = value;
+        disableNotesSaveButton(notesSaveButton);
+      }
+    });
+}
+
+function disableNotesSaveButton(button)
+{
+  if (!button.disabled) {
+    button.disabled = true;
+    button.classList.remove("btn-primary");
+    button.classList.add("btn-secondary");
+  }
+}
+
+function enableNotesSaveButton(button)
+{
+  if (button.disabled) {
+    button.disabled = false;
+    button.classList.add("btn-primary");
+    button.classList.remove("btn-secondary");
   }
 }

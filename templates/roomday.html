@@ -71,6 +71,11 @@
                 {% endfor %}
               </div>
             </div>
+            <strong><label for="notes-{{ talk.id }}">Notes</label></strong>
+            <div>
+              <textarea class="notes" name="notes-{{ talk.id }}" id="notes-{{ talk.id }}" maxlength=3000>{{ talk.notes|e }}</textarea>
+            </div>
+            <button class="notes-save btn btn-secondary mb-1" type="submit" id="notes-{{ talk.id }}-save" disabled>Save</button>
           </div>
         </div>
         {% endfor %}

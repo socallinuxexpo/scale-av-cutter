@@ -209,6 +209,34 @@ def edit():
     talk.edit_status = status
     return {}
 
+@app.route('/save_notes', methods=['POST'])
+@catch_error
+@commit_db
+def save_notes():
+    # Check for access level
+    if access_level() < 1:
+        access_error()
+
+    talk_id_str = expect(request, 'id')
+    notes = expect(request, 'notes')
+    try:
+        talk_id = int(talk_id_str)
+    except:
+        input_error()
+    if len(notes) > 3000:
+        error("Notes cannot exceed 3000 chars")
+
+    talk = db.session.query(Talk).get(talk_id)
+    if not talk:
+        input_error()
+
+    # If review status is approved, only reviewers and admins can edit it
+    if talk.review_status == ReviewStatus[1] and access_level() < 2:
+        error("Cannot be modified because this talk has already been approved")
+
+    talk.notes = notes
+    return {}
+
 @app.route('/review', methods=['POST'])
 @catch_error
 @commit_db
