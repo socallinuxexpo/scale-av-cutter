@@ -80,3 +80,7 @@ body {
   height: 5em;
   margin: 3px;
 }
+
+.home-btn {
+  vertical-align: top;
+}

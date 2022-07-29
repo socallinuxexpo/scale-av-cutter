@@ -10,7 +10,8 @@
   <div class="main">
 
     <div class="left">
-      <h1 class="mb-4">{{ room_day.day }}, {{ room_day.room }}</h1>
+      <a role="button" class="home-btn btn btn-secondary" href="/">Home</a>
+      <h1 class="d-inline-block">{{ room_day.day }}, {{ room_day.room }}</h1>
       <div id="player" data-vid="{{ room_day.vid }}"></div>
       <div id="no-vid" hidden>No video ID set for this room day yet. If you're an admin, set it from the index page. Otherwise, check back later.</div>
     </div>
