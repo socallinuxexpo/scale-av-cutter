@@ -106,6 +106,12 @@ function onYouTubeIframeAPIReady() {
 
   if (vid == "") {
     document.querySelector("#no-vid").hidden = false;
+    for (let ele of document.querySelectorAll(".talk-contents input")) {
+        ele.disabled = true;
+    }
+    for (let ele of document.querySelectorAll(".talk-time button")) {
+        ele.disabled = true;
+    }
 
   } else {
     player = new YT.Player("player", {
