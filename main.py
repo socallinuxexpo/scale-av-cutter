@@ -89,6 +89,17 @@ def roomday(day, room):
     if not room_day:
         abort(404)
 
+    is_editor = (access_level() == 1)
+    for talk in room_day.talks:
+        approved = (talk.review_status == ReviewStatus[1])
+        talk.edit_disabled = approved
+        talk.review_disabled = {
+            ReviewStatus[0]: (is_editor and approved),
+            ReviewStatus[1]: is_editor,
+            ReviewStatus[2]: is_editor,
+        }
+        talk.notes_disabled = (is_editor and approved)
+
     return render_template("roomday.html",
                            level=access_level(),
                            room_day=room_day,
@@ -200,7 +211,7 @@ def edit():
     if not talk:
         input_error()
 
-    # If review status is approved, we can't edit it
+    # If review status is approved, it's not editable
     if talk.review_status == ReviewStatus[1]:
         error("Cannot be modified because this talk has already been approved")
 
@@ -242,7 +253,7 @@ def save_notes():
 @commit_db
 def review():
     # Check for access level
-    if access_level() < 2:
+    if access_level() < 1:
         access_error()
 
     talk_id_str = expect(request, 'id')
@@ -260,11 +271,17 @@ def review():
     if not talk:
         input_error()
 
-    # If edit status is incomplete, we can't review it
-    if talk.edit_status == EditStatus[0]:
-        error("Cannot review an incomplete cut. If unusable, mark it as such first, and approve it.")
+    # Branch: Editors may _only_ transition review status from Rejected to Reviewing
+    if access_level() == 1:
+        if talk.review_status != ReviewStatus[2] or status != ReviewStatus[0]:
+            error("Editors may only reset a rejected review")
 
-    # Edit
+    # Reviewers can perform any transition, except when edit status is incomplete
+    else:
+        if talk.edit_status == EditStatus[0]:
+            error("Cannot review an incomplete cut. If unusable, mark it as such first, and approve it.")
+
+    # Update
     talk.review_status = status
     return {}
 

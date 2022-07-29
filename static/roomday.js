@@ -195,6 +195,8 @@ function sendReview(talk) {
     .then((data) => {
       if (data.error != null) {
         window.alert("ERROR: " + data.error);
+      } else {
+        setTalkEdits(talk, (reviewStatus == "approved"));
       }
     });
 }
@@ -211,6 +213,15 @@ function updateTalkColor(talk) {
     header.classList.add("btn-warning");
   } else {
     header.classList.add("btn-secondary");
+  }
+}
+
+function setTalkEdits(talk, disabled) {
+  for (let ele of talk.querySelectorAll(".edit-status input")) {
+    ele.disabled = disabled;
+  }
+  for (let ele of talk.querySelectorAll("button.talk-time-sample")) {
+    ele.disabled = disabled;
   }
 }
 
