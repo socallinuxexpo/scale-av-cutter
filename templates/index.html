@@ -39,13 +39,14 @@
     {% for room_day in room_days %}
     <div class="roomday" data-id="{{ room_day.id }}" data-vid="{{ room_day.vid }}">
       {% if level >= 3 %}<button type="button" class="roomday-vid">VID</button>{% endif %}
+      <a href="/{{ room_day.day }}/{{ room_day.room }}" class="roomday-description">{{ room_day.day }}, {{ room_day.room }}</a>
+      <span> - </span>
       <span class="roomday-no-vid" {% if room_day.vid %}hidden{% endif %}>(NO VID)</span>
       <span class="roomday-status" {% if not room_day.vid %}hidden{% endif %}>
-      {% if statuses[room_day.id] == 0 %}<span class="roomday-status-cut">(NEEDS CUT)</span>{% endif %}
-      {% if statuses[room_day.id] == 1 %}<span class="roomday-status-review">(NEEDS REVIEW)</span>{% endif %}
-      {% if statuses[room_day.id] == 2 %}<span class="roomday-status-done">(DONE)</span>{% endif %}
+      {% if statuses[room_day.id]["needs_cut"] %}<span class="roomday-status-cut">(NEEDS CUT)</span>{% endif %}
+      {% if statuses[room_day.id]["needs_review"] %}<span class="roomday-status-review">(NEEDS REVIEW)</span>{% endif %}
+      {% if statuses[room_day.id]["done"] %}<span class="roomday-status-done">(DONE)</span>{% endif %}
       </span>
-      <a href="/{{ room_day.day }}/{{ room_day.room }}" class="roomday-description">{{ room_day.day }}, {{ room_day.room }}</a>
     </div>
     {% endfor %}
   </div>

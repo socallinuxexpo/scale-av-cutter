@@ -40,15 +40,24 @@ def index():
         room_days = room_days_query().all()
 
         for room_day in room_days:
-            finished_cutting = all(talk.edit_status != EditStatus[0] for talk in room_day.talks)
-            finished_reviewing = all(talk.review_status != ReviewStatus[0] for talk in room_day.talks)
-            if not finished_cutting:
-                status = 0
-            elif not finished_reviewing:
-                status = 1
-            else:
-                status = 2
-            statuses[room_day.id] = status
+            needs_cut = False
+            needs_review = False
+            for talk in room_day.talks:
+                if talk.review_status != ReviewStatus[1]:
+                    # In review rejected state - always need to re-cut
+                    if talk.review_status == ReviewStatus[2]:
+                        needs_cut = True
+                    # Else, in edit incomplete state, needs a cut
+                    elif talk.edit_status == EditStatus[0]:
+                        needs_cut = True
+                    # Else, needs a review
+                    else:
+                        needs_review = True
+            statuses[room_day.id] = {
+                "needs_cut": needs_cut,
+                "needs_review": needs_review,
+                "done": not needs_cut and not needs_review,
+            }
 
     return render_template("index.html",
                            level=level,
