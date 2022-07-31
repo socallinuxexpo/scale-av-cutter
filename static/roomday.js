@@ -1,29 +1,33 @@
 'use strict';
 
+// Will be set in Main
+var accessLevel = 0;
+
 // Will be set by onYouTubeIframeAPIReady
 var player = null;
 
-// Main
-document.addEventListener("DOMContentLoaded", function(){
-  // Initialize each talk
+/*
+ * Main initialization procedure
+ */
+document.addEventListener("DOMContentLoaded", function()
+{
+
+  // Save access level
+  const main = document.querySelector(".main");
+  accessLevel = parseInt(main.dataset.accessLevel);
+
+  // Display no-vid message if no vid
+  if (getVid() == "") {
+    document.querySelector("#no-vid").hidden = false;
+  }
+
+  // Initialize each talk (event listeners, control state)
   const talks = document.querySelectorAll(".talk");
   for (const talk of talks) {
-    const talkId = talk.dataset.id;
-
-    // Update its color
-    updateTalkColor(talk);
 
     // Header expand/collapse
     const header = talk.querySelector(".talk-header");
-    const contents = talk.querySelector(".talk-contents");
-    header.addEventListener("click", () => {
-      header.classList.toggle("active");
-      if (contents.style.display === "block") {
-        contents.style.display = "none";
-      } else {
-        contents.style.display = "block";
-      }
-    });
+    header.addEventListener("click", () => { talk.classList.toggle("active"); });
 
     // Talk times
     const talkTimes = talk.querySelectorAll(".talk-time");
@@ -56,7 +60,7 @@ document.addEventListener("DOMContentLoaded", function(){
     }
 
     // Edit status
-    const editStatuses = talk.querySelectorAll("input[name='edit-status-" + talkId + "']");
+    const editStatuses = talk.querySelectorAll(".edit-status input");
     for (const editStatus of editStatuses) {
       editStatus.addEventListener("change", () => {
         sendTalkState(talk);
@@ -65,59 +69,48 @@ document.addEventListener("DOMContentLoaded", function(){
     }
 
     // Review status
-    const reviewStatuses = talk.querySelectorAll("input[name='review-status-" + talkId + "']");
+    const reviewStatuses = talk.querySelectorAll(".review-status input");
     for (const reviewStatus of reviewStatuses) {
-      if (!reviewStatus.disabled) {
-        reviewStatus.addEventListener("change", () => {
-          sendReview(talk);
-        });
-      }
+      reviewStatus.addEventListener("change", () => {
+        sendReview(talk);
+        updateTalkColor(talk);
+      });
     }
 
-    // Notes initialized to their textcontent
+    // Notes initialized to their textcontent (from backend)
     const notes = talk.querySelector(".notes");
     notes.value = notes.textContent;
 
     // Notes save button
     const notesSaveButton = talk.querySelector(".notes-save");
     notesSaveButton.addEventListener("click", (e) => {
-      saveNotes(talk, notes, notesSaveButton);
+      sendNotes(talk, notes, notesSaveButton);
       e.preventDefault();
     });
-    // Disabled by default
-    disableNotesSaveButton(notesSaveButton);
-    // Enables save button on any input
-    notes.addEventListener("input", () => {
-      enableNotesSaveButton(notesSaveButton);
-    });
-    // Small QoL that re-disables button if content is same. We're abusing
-    // textContent to store the "saved" version.
-    notes.addEventListener("blur", () => {
-      if (notes.value == notes.textContent) {
-        disableNotesSaveButton(notesSaveButton);
-      }
-    });
+    // Enable save button on any input
+    notes.addEventListener("input", () => { notesSaveButton.disabled = false; });
+    // Do full reevaluation upon losing focus
+    notes.addEventListener("blur", () => { updateNotesSaveButton(talk); });
+
+    // Update header color
+    updateTalkColor(talk);
+
+    // Update state of the controls
+    updateTalkControls(talk);
   }
 });
 
+function getVid() {
+  return document.querySelector("#player").dataset.vid;
+}
+
 function onYouTubeIframeAPIReady() {
-  const playerDiv = document.querySelector("#player");
-  const vid = playerDiv.dataset.vid;
-
-  if (vid == "") {
-    document.querySelector("#no-vid").hidden = false;
-    for (let ele of document.querySelectorAll(".talk-contents input")) {
-        ele.disabled = true;
-    }
-    for (let ele of document.querySelectorAll(".talk-time button")) {
-        ele.disabled = true;
-    }
-
-  } else {
+  const vid = getVid();
+  if (vid != "") {
     player = new YT.Player("player", {
       height: "360",
       width: "640",
-      videoId: playerDiv.dataset.vid,
+      videoId: vid,
       host: "https://www.youtube-nocookie.com",
     });
   }
@@ -172,6 +165,8 @@ function sendTalkState(talk) {
     .then((data) => {
       if (data.error != null) {
         window.alert("ERROR: " + data.error);
+      } else {
+        updateTalkControls(talk);
       }
     });
 }
@@ -196,36 +191,140 @@ function sendReview(talk) {
       if (data.error != null) {
         window.alert("ERROR: " + data.error);
       } else {
-        setTalkEdits(talk, (reviewStatus == "approved"));
+        updateTalkControls(talk);
       }
     });
 }
 
+/*
+ * Assert color of the talk header
+ *
+ * Based on combination of edit and review status
+ */
 function updateTalkColor(talk) {
   const talkId = talk.dataset.id;
-  const header = talk.querySelector(".talk-header");
   const editStatus = talk.querySelector("input[name='edit-status-" + talkId + "']:checked").value;
-  header.classList.remove("btn-success", "btn-secondary", "btn-warning");
+  const reviewStatus = talk.querySelector("input[name='review-status-" + talkId + "']:checked").value;
+  const header = talk.querySelector(".talk-header");
+  header.classList.remove(
+    "header-incomplete",
+    "header-done",
+    "header-unusable",
+    "header-done-reviewing",
+    "header-unusable-reviewing",
+    "header-rejected",
+  );
 
-  if (editStatus == "done") {
-    header.classList.add("btn-success");
-  } else if (editStatus == "unusable") {
-    header.classList.add("btn-warning");
-  } else {
-    header.classList.add("btn-secondary");
+  // Talk header color depends on the combination of edit and review status
+  let talkClass = "header-incomplete";
+
+  if (reviewStatus == "rejected") {
+    talkClass = "header-rejected";
+
+  } else if (reviewStatus == "approved") {
+    if (editStatus == "done") {
+      talkClass = "header-done";
+    } else if (editStatus == "unusable") {
+      talkClass = "header-unusable";
+    }
+
+  } else if (reviewStatus == "reviewing") {
+    if (editStatus == "done") {
+      talkClass = "header-done-reviewing";
+    } else if (editStatus == "unusable") {
+      talkClass = "header-unusable-reviewing";
+    }
+  }
+
+  header.classList.add(talkClass);
+}
+
+/*
+ * Set all of a talk controls' disabled state
+ */
+function disableTalkControls(talk, disabled) {
+  talk.querySelectorAll(".talk-contents input").forEach((e) => { e.disabled = disabled; });
+  talk.querySelectorAll(".talk-contents button").forEach((e) => { e.disabled = disabled; });
+  talk.querySelectorAll(".talk-contents textarea").forEach((e) => { e.disabled = disabled; });
+  if (!disabled) {
+    updateNotesSaveButton(talk);
   }
 }
 
-function setTalkEdits(talk, disabled) {
-  for (let ele of talk.querySelectorAll(".edit-status input")) {
-    ele.disabled = disabled;
+/*
+ * Assert what talk controls are enabled, based on:
+ *
+ * - Existence of VID
+ * - User's access level
+ * - Talk's edit status
+ * - Talk's review status
+ *
+ * The backend does its own enforcement, but this implementation on the
+ * frontend makes it more obvious what's allowed and what's not.
+ */
+function updateTalkControls(talk) {
+  const talkId = talk.dataset.id;
+
+  // If no VID, all edits disabled. We don't condition on the validity of VID
+  // because we can't guarantee the Youtube iframe API works - the video might
+  // be valid and can be viewed externally. In that case, allow edits anyway
+  // instead of throwing out everything.
+  if (getVid() == "") {
+    disableTalkControls(talk, true);
   }
-  for (let ele of talk.querySelectorAll("button.talk-time-sample")) {
-    ele.disabled = disabled;
+
+  // Editors: More controls are restricted
+  else if (accessLevel == 1) {
+    const reviewStatus = talk.querySelector("input[name='review-status-" + talkId + "']:checked").value;
+
+    // If review status is approved, disable almost everything. Except the play buttons. :)
+    if (reviewStatus == "approved") {
+      disableTalkControls(talk, true);
+      talk.querySelectorAll("button.talk-time-seek").forEach((e) => { e.disabled = false; });
+    }
+
+    // Otherwise, enable almost everything, except approving/rejecting.
+    // However, editors are allowed to un-reject a talk (to signal a need to
+    // re-review).
+    else {
+      disableTalkControls(talk, false);
+      talk.querySelector(".review-status input[value='approved']").disabled = true;
+      talk.querySelector(".review-status input[value='rejected']").disabled = true;
+    }
+
+  }
+
+  // Reviewers/admins: Controls only mildly restricted in specific cases
+  else if (accessLevel >= 2) {
+    const editStatus = talk.querySelector("input[name='edit-status-" + talkId + "']:checked").value;
+    const reviewStatus = talk.querySelector("input[name='review-status-" + talkId + "']:checked").value;
+
+    // If review status is approved, disable most edit controls. Force reviewers to
+    // unapprove before editing. Not disabled:
+    // - play button
+    // - notes
+    // - review status
+    if (reviewStatus == "approved") {
+      disableTalkControls(talk, true);
+      talk.querySelectorAll("button.talk-time-seek").forEach((e) => { e.disabled = false; });
+      talk.querySelector(".notes").disabled = false;
+      updateNotesSaveButton(talk);
+      talk.querySelectorAll(".review-status input").forEach((e) => { e.disabled = false; });
+    }
+
+    // Otherwise, enable almost everything... EXCEPT 'approve' when edit status
+    // is 'incomplete'
+    else {
+      disableTalkControls(talk, false);
+
+      if (editStatus == "incomplete") {
+        talk.querySelector(".review-status input[value='approved']").disabled = true;
+      }
+    }
   }
 }
 
-function saveNotes(talk, notes, notesSaveButton) {
+function sendNotes(talk, notes, notesSaveButton) {
   const talkId = talk.dataset.id;
   const value = notes.value;
 
@@ -233,7 +332,7 @@ function saveNotes(talk, notes, notesSaveButton) {
   formData.append("id", talkId);
   formData.append("notes", value);
   console.log("Saving notes for " + talkId);
-  fetch("/save_notes", {
+  fetch("/notes", {
     method: "POST",
     body: formData,
   })
@@ -246,25 +345,27 @@ function saveNotes(talk, notes, notesSaveButton) {
       }
       else {
         notes.textContent = value;
-        disableNotesSaveButton(notesSaveButton);
+        updateNotesSaveButton(talk);
       }
     });
 }
 
-function disableNotesSaveButton(button)
+/*
+ * Assert state of the notes save button.
+ *
+ * If the notes area is disabled, the button should be too. If not, it may or
+ * may not be - depending on if there are unsaved edits.
+ */
+function updateNotesSaveButton(talk)
 {
-  if (!button.disabled) {
-    button.disabled = true;
-    button.classList.remove("btn-primary");
-    button.classList.add("btn-secondary");
-  }
-}
+  const notes = talk.querySelector(".notes");
+  const notesSaveButton = talk.querySelector(".notes-save");
 
-function enableNotesSaveButton(button)
-{
-  if (button.disabled) {
-    button.disabled = false;
-    button.classList.add("btn-primary");
-    button.classList.remove("btn-secondary");
+  if (notes.disabled) {
+    notesSaveButton.disabled = true;
+  }
+
+  else {
+    notesSaveButton.disabled = (notes.value == notes.textContent);
   }
 }

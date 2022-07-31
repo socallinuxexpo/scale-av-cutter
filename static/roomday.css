@@ -41,7 +41,8 @@ body {
   text-align: left;
   border: none;
   outline: none;
-  transition: 0.4s;
+  transition: none;
+  color: white;
 }
 
 .talk-contents {
@@ -50,11 +51,13 @@ body {
   display: none;
   overflow: hidden;
 }
+.talk.active .talk-contents {
+  display: block;
+}
 
 .talk-controls {
   display: grid;
   grid-template-columns: auto auto;
-  grid-template-rows: auto auto;
 }
 
 .talk-time {
@@ -81,6 +84,33 @@ body {
   margin: 3px;
 }
 
+button.notes-save {
+  transition: 0.4s;
+  background: #007bff;
+}
+button.notes-save:disabled {
+  background: #545b62;
+}
+
 .home-btn {
   vertical-align: top;
+}
+
+.header-incomplete {
+  background: #545b62;
+}
+.header-done {
+  background: #1e7e34;
+}
+.header-unusable {
+  background: #d39e00;
+}
+.header-done-reviewing {
+  background: linear-gradient(to right, #1e7e34, #545b62 50%);
+}
+.header-unusable-reviewing {
+  background: linear-gradient(to right, #d39e00, #545b62 50%);
+}
+.header-rejected {
+  background: linear-gradient(to left, #bd2130, #545b62);
 }

@@ -7,7 +7,7 @@
     <link rel="icon" href="data:,">
 </head>
 <body>
-  <div class="main">
+  <div class="main" data-access-level="{{ level }}">
 
     <div class="left">
       <a role="button" class="home-btn btn btn-secondary" href="/">Home</a>
@@ -37,7 +37,7 @@
                 <button type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
                   <img src="/static/icons/play-fill.svg" alt="" width="24" height="24">
                 </button>
-                <button type="button" class="talk-time-sample btn btn-default" aria-label="Sample start time" {{ 'disabled' if talk.edit_disabled }}>
+                <button type="button" class="talk-time-sample btn btn-default" aria-label="Sample start time">
                   <img src="/static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
                 </button>
               </div>
@@ -47,7 +47,7 @@
                 <button type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
                   <img src="/static/icons/play-fill.svg" alt="" width="24" height="24">
                 </button>
-                <button type="button" class="talk-time-sample btn btn-default" aria-label="Sample end time" {{ 'disabled' if talk.edit_disabled }}>
+                <button type="button" class="talk-time-sample btn btn-default" aria-label="Sample end time">
                   <img src="/static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
                 </button>
                 <br>
@@ -56,7 +56,7 @@
                 <strong><label>Edit status</label></strong>
                 {% for status in EditStatus %}
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="edit-status-{{ talk.id }}" id="{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.edit_status == status else ''}} autocomplete="off" {{ 'disabled' if talk.edit_disabled }}>
+                  <input class="form-check-input" type="radio" name="edit-status-{{ talk.id }}" id="{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.edit_status == status else ''}} autocomplete="off">
                   <label class="form-check-label" for="{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
                 </div>
                 {% endfor %}
@@ -65,17 +65,15 @@
                 <strong><label>Review status</label></strong>
                 {% for status in ReviewStatus %}
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="review-status-{{ talk.id }}" id="{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.review_status == status else ''}} autocomplete="off" {{ 'disabled' if talk.review_disabled[status] }}>
+                  <input class="form-check-input" type="radio" name="review-status-{{ talk.id }}" id="{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.review_status == status else ''}} autocomplete="off">
                   <label class="form-check-label" for="{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
                 </div>
                 {% endfor %}
               </div>
             </div>
             <strong><label for="notes-{{ talk.id }}">Notes</label></strong>
-            <div>
-              <textarea class="notes" name="notes-{{ talk.id }}" id="notes-{{ talk.id }}" maxlength=3000 {{ 'disabled' if talk.notes_disabled }}>{{ talk.notes|e }}</textarea>
-            </div>
-            <button class="notes-save btn btn-secondary mb-1" disabled>Save</button>
+            <textarea class="notes" name="notes-{{ talk.id }}" id="notes-{{ talk.id }}" maxlength=3000>{{ talk.notes|e }}</textarea>
+            <button class="notes-save btn btn-secondary mb-1">Save</button>
           </div>
         </div>
         {% endfor %}
