@@ -9,6 +9,7 @@ class RoomDay(db.Model):
     day         = db.Column(db.Text, nullable=False)
     date        = db.Column(db.Date, nullable=False)
     vid         = db.Column(db.Text, nullable=False)
+    comment     = db.Column(db.Text, nullable=False, default="")
 
     talks = db.relationship('Talk', order_by="Talk.sched_start")
 

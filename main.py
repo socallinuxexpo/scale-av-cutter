@@ -114,6 +114,8 @@ def vid():
 
     room_day_id = expect(request, 'id')
     video_id = expect(request, 'vid')
+    if len(vid) > 32:
+        error("Looks too long to be a YouTube video ID?")
 
     # Get room day
     room_day = db.session.query(RoomDay).get(room_day_id)
@@ -121,6 +123,27 @@ def vid():
         input_error()
 
     room_day.vid = video_id
+    return {}
+
+@app.route('/comment', methods=['POST'])
+@catch_error
+@commit_db
+def comment():
+    # Check for access level
+    if access_level() < 3:
+        access_error()
+
+    room_day_id = expect(request, 'id')
+    comment = expect(request, 'comment')
+    if len(comment) > 1000:
+        error("Comment cannot be >1000 characters")
+
+    # Get room day
+    room_day = db.session.query(RoomDay).get(room_day_id)
+    if not room_day:
+        input_error()
+
+    room_day.comment = comment
     return {}
 
 @app.route('/xml', methods=['POST'])
