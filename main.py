@@ -114,7 +114,7 @@ def vid():
 
     room_day_id = expect(request, 'id')
     video_id = expect(request, 'vid')
-    if len(vid) > 32:
+    if len(video_id) > 32:
         error("Looks too long to be a YouTube video ID?")
 
     # Get room day
