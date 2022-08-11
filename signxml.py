@@ -40,7 +40,7 @@ def parse_signxml(data):
 
     return talks
 
-def import_talks(talks):
+def import_talks(talks, force_add):
     for talk in talks:
         # See if the RoomDay exists
         room_day = db.session.query(RoomDay)\
@@ -72,7 +72,7 @@ def import_talks(talks):
         talk = db.session.query(Talk)\
                     .filter(Talk.path == talk['path'])\
                     .first()
-        if not talk:
+        if not talk or force_add:
             db.session.add(talk_data)
         else:
             # If talk already exists, we may need to update some of its fields

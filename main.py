@@ -154,7 +154,12 @@ def xml():
     if access_level() < 3:
         access_error()
 
-    url = expect(request, 'url')
+    url = expect(request, "url")
+    force_add = expect(request, "force_add", optional=True)
+    if force_add:
+        force_add = True
+    else:
+        force_add = False
 
     # Parse sign xml
     with urllib.request.urlopen(url) as response:
@@ -162,7 +167,7 @@ def xml():
     talks = parse_signxml(data)
 
     # Import
-    import_talks(talks)
+    import_talks(talks, force_add)
     return {}
 
 @app.route('/json')
