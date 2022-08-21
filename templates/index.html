@@ -16,11 +16,15 @@
 
   <h3>Access</h3>
   {% if level == 0 %}
-  {% if fail %}<p class="failed">Incorrect password</p>{% endif %}
+  {% if "name" in fails  %}<p class="failed">Please set a non-empty display name</p>{% endif %}
+  {% if "password" in fails  %}<p class="failed">Incorrect password</p>{% endif %}
   <form action="/login" method="post">
-    <p>Enter a group password to enable access.</p>
+    <p>Enter a display name and a group password to enable access.</p>
     <div class="input-group mb-1">
-      <input class="form-control mr-1" type="password" name="password" id="password">
+      <input class="form-control mr-1" type="text" name="name" id="name" placeholder="Display name">
+    </div>
+    <div class="input-group mb-1">
+      <input class="form-control mr-1" type="password" name="password" id="password" placeholder="Password">
       <button type="button" class="show-hide btn btn-default" aria-label="Show hide password">
         <img class="show-hide-set-visible" src="/static/icons/eye-fill.svg" alt="" width="24" height="24">
         <img class="show-hide-set-hidden" src="/static/icons/eye-slash-fill.svg" alt="" width="24" height="24" hidden>
@@ -31,6 +35,7 @@
   {% else %}
   <form action="/logout" method="post">
     {% set access_names = {1:"Editor", 2:"Reviewer", 3:"Admin"} %}
+    <label>Display name: <strong>{{ name|e }}</strong></label><br>
     <label>Access level: <strong>{{ access_names[level] }}</strong></label>
     <button class="btn-sm btn-secondary float-right" type="submit" id="logout">Logout</button>
   </form>

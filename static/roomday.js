@@ -1,7 +1,8 @@
 'use strict';
 
-// Will be set in Main
-var accessLevel = 0;
+// Globals inherited from HTML:
+// - displayName
+// - accessLevel
 
 // Will be set by onYouTubeIframeAPIReady
 var player = null;
@@ -14,7 +15,6 @@ document.addEventListener("DOMContentLoaded", function()
 
   // Save access level
   const main = document.querySelector(".main");
-  accessLevel = parseInt(main.dataset.accessLevel);
 
   // Display no-vid message if no vid
   if (getVid() == "") {
@@ -167,6 +167,7 @@ function sendTalkState(talk) {
         window.alert("ERROR: " + data.error);
       } else {
         updateTalkControls(talk);
+        updateLastEditedBy(talk, displayName);
       }
     });
 }
@@ -322,6 +323,14 @@ function updateTalkControls(talk) {
       }
     }
   }
+}
+
+/*
+ * Sets last edited by to current given name
+ */
+function updateLastEditedBy(talk, name) {
+  const nameEle = talk.querySelector(".last-edited-by");
+  nameEle.textContent = name;
 }
 
 function sendNotes(talk, notes, notesSaveButton) {

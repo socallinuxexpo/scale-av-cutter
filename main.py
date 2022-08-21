@@ -15,10 +15,8 @@ def room_days_query():
                 .order_by(RoomDay.date)\
                 .order_by(RoomDay.room)
 
-def access_level(password=None):
-    if password is None:
-        password = request.cookies.get('password', None)
-
+# Match password against configured passwords
+def check_level(password):
     # Yes, it's vulnerable to timing attacks. Ping the maintainer if this
     # really matters.
     if password == app.config['EDITOR_KEY']:
@@ -29,16 +27,42 @@ def access_level(password=None):
         return 3
     return 0
 
+# Retrieve name and access level of user via cookies
+def access(password=None, require_name=True):
+    # Retrieve password via cookies if not given
+    if password is None:
+        password = request.cookies.get('password', None)
+
+    # Retrieve name
+    name = request.cookies.get('name', "")
+
+    # Evaluate level.
+    level = check_level(password)
+
+    # Require name?
+    if require_name and not name:
+        level = 0
+
+    return (name, level)
+
+# Index page - login page and list of room days
 @app.route('/')
 def index():
-    level = access_level()
+    name, level = access()
     room_days = []
     statuses = {}
-    fail = expect(request, "fail", optional=True)
+    fail_str = expect(request, "fail", optional=True)
 
+    # List of login failure reasons
+    fails = set()
+    if fail_str:
+        fails = set(fail_str.split(","))
+
+    # Display list of room days if logged in
     if level > 0:
         room_days = room_days_query().all()
 
+        # Evaluate statuses
         for room_day in room_days:
             needs_cut = False
             needs_review = False
@@ -59,28 +83,40 @@ def index():
                 "done": not needs_cut and not needs_review,
             }
 
+    # Render
     return render_template("index.html",
+                           name=name,
                            level=level,
-                           fail=fail,
+                           fails=fails,
                            room_days=room_days,
                            statuses=statuses)
 
 @app.route('/logout', methods=['POST'])
 def logout():
     resp = make_response(redirect('/'))
+    resp.set_cookie('name', expires=0)
     resp.set_cookie('password', expires=0)
     return resp
 
 @app.route('/login', methods=['POST'])
 def login():
+    name = expect(request, 'name', optional=True)
     password = expect(request, 'password', optional=True)
-    level = access_level(password)
+    level = check_level(password)
 
-    if level > 0:
+    fails = []
+    if level == 0:
+        fails.append('password')
+    if not name or not name.strip() or len(name) > 32:
+        fails.append('name')
+
+    if not fails:
         resp = make_response(redirect('/'))
+        resp.set_cookie('name', name)
         resp.set_cookie('password', password)
     else:
-        resp = make_response(redirect('/?fail=1'))
+        resp = make_response(redirect('/?fail=' + ','.join(fails)))
+        resp.set_cookie('name', expires=0)
         resp.set_cookie('password', expires=0)
 
     return resp
@@ -88,7 +124,8 @@ def login():
 @app.route('/<day>/<room>')
 def roomday(day, room):
     # Check for access level
-    if access_level() < 1:
+    name, level = access()
+    if level < 1:
         abort(403)
 
     room_day = room_days_query()\
@@ -99,7 +136,8 @@ def roomday(day, room):
         abort(404)
 
     return render_template("roomday.html",
-                           level=access_level(),
+                           name=name,
+                           level=level,
                            room_day=room_day,
                            EditStatus=EditStatus,
                            ReviewStatus=ReviewStatus)
@@ -109,7 +147,7 @@ def roomday(day, room):
 @commit_db
 def vid():
     # Check for access level
-    if access_level() < 3:
+    if access()[1] < 3:
         access_error()
 
     room_day_id = expect(request, 'id')
@@ -130,7 +168,7 @@ def vid():
 @commit_db
 def comment():
     # Check for access level
-    if access_level() < 3:
+    if access()[1] < 3:
         access_error()
 
     room_day_id = expect(request, 'id')
@@ -151,7 +189,7 @@ def comment():
 @commit_db
 def xml():
     # Check for access level
-    if access_level() < 3:
+    if access()[1] < 3:
         access_error()
 
     url = expect(request, "url")
@@ -174,7 +212,7 @@ def xml():
 @catch_error
 def generate_json():
     # Check for access level
-    if access_level() < 1:
+    if access()[1] < 1:
         access_error()
 
     approved_only = expect(request, "approved", optional=True)
@@ -218,9 +256,11 @@ def generate_json():
 @commit_db
 def edit():
     # Check for access level
-    if access_level() < 1:
+    name, level = access()
+    if level < 1:
         access_error()
 
+    # Fetch/validate parameters
     talk_id_str = expect(request, 'id')
     start_str = expect(request, 'start')
     end_str = expect(request, 'end')
@@ -233,6 +273,7 @@ def edit():
     except:
         input_error()
 
+    # Fetch Talk obj
     talk = db.session.query(Talk).get(talk_id)
     if not talk:
         input_error()
@@ -241,9 +282,11 @@ def edit():
     if talk.review_status == ReviewStatus[1]:
         error("Cannot be modified because this talk has already been approved")
 
+    # Edit talk
     talk.start = start
     talk.end = end
     talk.edit_status = status
+    talk.last_edited_by = name
     return {}
 
 @app.route('/notes', methods=['POST'])
@@ -251,9 +294,11 @@ def edit():
 @commit_db
 def notes():
     # Check for access level
-    if access_level() < 1:
+    _, level = access()
+    if level < 1:
         access_error()
 
+    # Fetch/validate parameters
     talk_id_str = expect(request, 'id')
     notes = expect(request, 'notes')
     try:
@@ -263,14 +308,16 @@ def notes():
     if len(notes) > 3000:
         error("Notes cannot exceed 3000 chars")
 
+    # Fetch Talk obj
     talk = db.session.query(Talk).get(talk_id)
     if not talk:
         input_error()
 
     # If review status is approved, only reviewers and admins can edit it
-    if talk.review_status == ReviewStatus[1] and access_level() < 2:
+    if talk.review_status == ReviewStatus[1] and level < 2:
         error("Cannot be modified because this talk has already been approved")
 
+    # Edit talk
     talk.notes = notes
     return {}
 
@@ -279,13 +326,13 @@ def notes():
 @commit_db
 def review():
     # Check for access level
-    if access_level() < 1:
+    name, level = access()
+    if level < 1:
         access_error()
 
+    # Fetch/validate parameters
     talk_id_str = expect(request, 'id')
     status = expect(request, 'status')
-
-    # Basic validation
     try:
         talk_id = int(talk_id_str)
         assert status in ReviewStatus
@@ -298,7 +345,7 @@ def review():
         input_error()
 
     # Branch: Editors may _only_ transition review status from Rejected to Reviewing
-    if access_level() == 1:
+    if level == 1:
         if talk.review_status != ReviewStatus[2] or status != ReviewStatus[0]:
             error("Editors may only reset a rejected review")
 
@@ -316,9 +363,10 @@ def review():
 @commit_db
 def auto_vids():
     # Check for access level
-    if access_level() < 3:
+    if access()[1] < 3:
         access_error()
 
+    # Fetch/validate parameters
     api_key = expect(request, "api_key")
     channel_id = expect(request, "channel_id")
     query = expect(request, "query", optional=True)
@@ -326,7 +374,7 @@ def auto_vids():
     # Fetch all room days
     room_days = room_days_query().all()
 
-    # Fetch all videos from SCALE YT channel
+    # Fetch all videos from channel
     yt = build('youtube', 'v3', developerKey=api_key)
     page_token = None
     while True:
@@ -366,7 +414,7 @@ def auto_vids():
 @commit_db
 def clear_vids():
     # Check for access level
-    if access_level() < 3:
+    if access()[1] < 3:
         access_error()
 
     # Clear VID from all room days

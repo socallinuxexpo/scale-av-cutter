@@ -11,6 +11,8 @@ class RoomDay(db.Model):
     vid         = db.Column(db.Text, nullable=False)
     comment     = db.Column(db.Text, nullable=False, default="")
 
+    checked_out_by = db.Column(db.Text, nullable=False, default="")
+
     talks = db.relationship('Talk', order_by="Talk.sched_start")
 
 db.Index('room_day_index', RoomDay.room, RoomDay.day)
@@ -31,3 +33,5 @@ class Talk(db.Model):
 
     review_status   = db.Column(db.Enum(*ReviewStatus, name="ReviewStatus"), default=ReviewStatus[0], nullable=False)
     edit_status     = db.Column(db.Enum(*EditStatus, name="EditStatus"), default=EditStatus[0], nullable=False)
+
+    last_edited_by = db.Column(db.Text, nullable=False, default="")

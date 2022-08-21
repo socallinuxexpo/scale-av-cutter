@@ -7,7 +7,7 @@
     <link rel="icon" href="data:,">
 </head>
 <body>
-  <div class="main" data-access-level="{{ level }}">
+  <div class="main">
 
     <div class="left">
       <a role="button" class="home-btn btn btn-secondary" href="/">Home</a>
@@ -70,6 +70,7 @@
                 </div>
                 {% endfor %}
               </div>
+              <div><em>Last edited by: <span class="last-edited-by">{{ talk.last_edited_by }}</span></em><br><br></div>
             </div>
             <strong><label for="notes-{{ talk.id }}">Notes</label></strong>
             <textarea class="notes" name="notes-{{ talk.id }}" id="notes-{{ talk.id }}" maxlength=3000>{{ talk.notes|e }}</textarea>
@@ -83,6 +84,10 @@
 		</div>
   </div>
 
+  <script>
+    var displayName = {{ name|tojson }};
+    var accessLevel = {{ level|tojson }};
+  </script>
   <script src="/static/roomday.js?v=1"></script>
   <script src="https://www.youtube.com/iframe_api"></script>
 </body>
