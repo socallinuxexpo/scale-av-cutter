@@ -107,9 +107,25 @@ function getVid() {
 function onYouTubeIframeAPIReady() {
   const vid = getVid();
   if (vid != "") {
+
+    let width = 640;
+
+    // Attempt at responsiveness. 480px is threshold for single column.
+    if (window.screen.width <= 480) {
+      // In single-column, make video width ~= 90% of screen width
+      width = Math.round(window.screen.width * 0.9);
+    } else {
+      // In double-column, give the talk side at least 480 px
+      let allowance = window.screen.width - 480;
+      allowance *= 0.9;
+      width = Math.min(width, allowance);
+    }
+    let height = Math.round(width * 0.5625);
+    console.log(height, width);
+
     player = new YT.Player("player", {
-      height: "360",
-      width: "640",
+      height: height.toString(),
+      width: width.toString(),
       videoId: vid,
       host: "https://www.youtube-nocookie.com",
     });
