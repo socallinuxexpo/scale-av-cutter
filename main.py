@@ -147,7 +147,8 @@ def roomday(day, room):
 @commit_db
 def vid():
     # Check for access level
-    if access()[1] < 3:
+    _, level = access(require_name=False)
+    if level < 3:
         access_error()
 
     room_day_id = expect(request, 'id')
@@ -168,7 +169,8 @@ def vid():
 @commit_db
 def comment():
     # Check for access level
-    if access()[1] < 3:
+    _, level = access(require_name=False)
+    if level < 3:
         access_error()
 
     room_day_id = expect(request, 'id')
@@ -189,7 +191,8 @@ def comment():
 @commit_db
 def xml():
     # Check for access level
-    if access()[1] < 3:
+    _, level = access(require_name=False)
+    if level < 3:
         access_error()
 
     url = expect(request, "url")
@@ -212,7 +215,8 @@ def xml():
 @catch_error
 def generate_json():
     # Check for access level
-    if access()[1] < 1:
+    _, level = access(require_name=False)
+    if level < 1:
         access_error()
 
     approved_only = expect(request, "approved", optional=True)
@@ -363,7 +367,8 @@ def review():
 @commit_db
 def auto_vids():
     # Check for access level
-    if access()[1] < 3:
+    _, level = access(require_name=False)
+    if level < 3:
         access_error()
 
     # Fetch/validate parameters
@@ -414,7 +419,8 @@ def auto_vids():
 @commit_db
 def clear_vids():
     # Check for access level
-    if access()[1] < 3:
+    _, level = access(require_name=False)
+    if level < 3:
         access_error()
 
     # Clear VID from all room days
