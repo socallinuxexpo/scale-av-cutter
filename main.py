@@ -240,6 +240,7 @@ def generate_json():
                     "end": talk.end,
                     "edit_status": talk.edit_status,
                     "review_status": talk.review_status,
+                    "notes": talk.notes,
                 }
                 for talk in room_day.talks
             ],
