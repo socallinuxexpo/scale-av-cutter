@@ -50,7 +50,6 @@ def access(password=None, require_name=True):
 def index():
     name, level = access()
     room_days = []
-    statuses = {}
     fail_str = expect(request, "fail", optional=True)
 
     # List of login failure reasons
@@ -67,29 +66,23 @@ def index():
             needs_cut = False
             needs_review = False
             for talk in room_day.talks:
-                if talk.review_status != ReviewStatus[1]:
-                    # In review rejected state - always need to re-cut
-                    if talk.review_status == ReviewStatus[2]:
-                        needs_cut = True
-                    # Else, in edit incomplete state, needs a cut
-                    elif talk.edit_status == EditStatus[0]:
+                if talk.review_status == ReviewStatus.reviewing:
+                    # In edit incomplete state, needs a cut
+                    if talk.edit_status == EditStatus.incomplete:
                         needs_cut = True
                     # Else, needs a review
                     else:
                         needs_review = True
-            statuses[room_day.id] = {
-                "needs_cut": needs_cut,
-                "needs_review": needs_review,
-                "done": not needs_cut and not needs_review,
-            }
+            room_day.needs_cut = needs_cut
+            room_day.needs_review = needs_review
+            room_day.done = not needs_cut and not needs_review
 
     # Render
     return render_template("index.html",
                            name=name,
                            level=level,
                            fails=fails,
-                           room_days=room_days,
-                           statuses=statuses)
+                           room_days=room_days)
 
 @app.route('/logout', methods=['POST'])
 def logout():
@@ -139,8 +132,8 @@ def roomday(day, room):
                            name=name,
                            level=level,
                            room_day=room_day,
-                           EditStatus=EditStatus,
-                           ReviewStatus=ReviewStatus)
+                           edit_statuses=[EditStatus.incomplete, EditStatus.done, EditStatus.unusable],
+                           review_statuses=[ReviewStatus.reviewing, ReviewStatus.done, ReviewStatus.unusable])
 
 @app.route('/vid', methods=['POST'])
 @catch_error
@@ -219,8 +212,7 @@ def generate_json():
     if level < 1:
         access_error()
 
-    approved_only = expect(request, "approved", optional=True)
-    day = expect(request, "day", optional=True)
+    unreviewed = expect(request, "unreviewed", optional=True)
 
     room_days_info = []
 
@@ -242,15 +234,12 @@ def generate_json():
                     "review_status": talk.review_status,
                     "notes": talk.notes,
                 }
-                for talk in room_day.talks
+                for talk in room_day.talks if (
+                    talk.review_status == "done" or
+                    unreviewed and talk.edit_status == "done"
+                )
             ],
         }
-        if day and room_day_info["day"] != day:
-            room_day_info["talks"] = []
-        if approved_only:
-            room_day_info["talks"] = list(talk for talk in room_day_info["talks"] \
-                                            if (talk["edit_status"] == EditStatus[1] and
-                                                talk["review_status"] == ReviewStatus[1]))
         if len(room_day_info["talks"]) > 0:
             room_days_info.append(room_day_info)
 
@@ -274,7 +263,7 @@ def edit():
         talk_id = int(talk_id_str)
         start = int(start_str)
         end = int(end_str)
-        assert status in EditStatus
+        assert status in EditStatus.values()
     except:
         input_error()
 
@@ -283,9 +272,9 @@ def edit():
     if not talk:
         input_error()
 
-    # If review status is approved, it's not editable
-    if talk.review_status == ReviewStatus[1]:
-        error("Cannot be modified because this talk has already been approved")
+    # If review status is reviewed, it's not editable
+    if talk.review_status != ReviewStatus.reviewing:
+        error("Cannot be modified because this talk has already been reviewed")
 
     # Edit talk
     talk.start = start
@@ -318,9 +307,9 @@ def notes():
     if not talk:
         input_error()
 
-    # If review status is approved, only reviewers and admins can edit it
-    if talk.review_status == ReviewStatus[1] and level < 2:
-        error("Cannot be modified because this talk has already been approved")
+    # If review status is reviewed, only reviewers and admins can edit it
+    if talk.review_status != ReviewStatus.reviewing and level < 2:
+        error("Cannot be modified because this talk has already been reviewed")
 
     # Edit talk
     talk.notes = notes
@@ -332,7 +321,7 @@ def notes():
 def review():
     # Check for access level
     name, level = access()
-    if level < 1:
+    if level < 2:
         access_error()
 
     # Fetch/validate parameters
@@ -340,7 +329,7 @@ def review():
     status = expect(request, 'status')
     try:
         talk_id = int(talk_id_str)
-        assert status in ReviewStatus
+        assert status in ReviewStatus.values()
     except:
         input_error()
 
@@ -348,16 +337,6 @@ def review():
     talk = db.session.query(Talk).get(talk_id)
     if not talk:
         input_error()
-
-    # Branch: Editors may _only_ transition review status from Rejected to Reviewing
-    if level == 1:
-        if talk.review_status != ReviewStatus[2] or status != ReviewStatus[0]:
-            error("Editors may only reset a rejected review")
-
-    # Reviewers can perform any transition, except approve an incomplete edit
-    else:
-        if talk.edit_status == EditStatus[0] and status == ReviewStatus[1]:
-            error("Cannot approve an incomplete cut. If unusable, mark it as such first, and approve it.")
 
     # Update
     talk.review_status = status

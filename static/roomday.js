@@ -229,28 +229,24 @@ function updateTalkColor(talk) {
     "header-unusable",
     "header-done-reviewing",
     "header-unusable-reviewing",
-    "header-rejected",
   );
 
   // Talk header color depends on the combination of edit and review status
   let talkClass = "header-incomplete";
 
-  if (reviewStatus == "rejected") {
-    talkClass = "header-rejected";
+  if (reviewStatus == "reviewing") {
 
-  } else if (reviewStatus == "approved") {
-    if (editStatus == "done") {
-      talkClass = "header-done";
-    } else if (editStatus == "unusable") {
-      talkClass = "header-unusable";
-    }
-
-  } else if (reviewStatus == "reviewing") {
     if (editStatus == "done") {
       talkClass = "header-done-reviewing";
     } else if (editStatus == "unusable") {
       talkClass = "header-unusable-reviewing";
     }
+
+  } else if (reviewStatus == "done") {
+    talkClass = "header-done";
+
+  } else if (reviewStatus == "unusable") {
+    talkClass = "header-unusable";
   }
 
   header.classList.add(talkClass);
@@ -294,19 +290,16 @@ function updateTalkControls(talk) {
   else if (accessLevel == 1) {
     const reviewStatus = talk.querySelector("input[name='review-status-" + talkId + "']:checked").value;
 
-    // If review status is approved, disable almost everything. Except the play buttons. :)
-    if (reviewStatus == "approved") {
+    // If review status is reviewed, disable almost everything. Except the play buttons. :)
+    if (reviewStatus != "reviewing") {
       disableTalkControls(talk, true);
       talk.querySelectorAll("button.talk-time-seek").forEach((e) => { e.disabled = false; });
     }
 
-    // Otherwise, enable almost everything, except approving/rejecting.
-    // However, editors are allowed to un-reject a talk (to signal a need to
-    // re-review).
+    // Otherwise, enable almost everything, except reviewing
     else {
       disableTalkControls(talk, false);
-      talk.querySelector(".review-status input[value='approved']").disabled = true;
-      talk.querySelector(".review-status input[value='rejected']").disabled = true;
+      talk.querySelectorAll(".review-status input").forEach((e) => { e.disabled = true; });
     }
 
   }
@@ -316,12 +309,12 @@ function updateTalkControls(talk) {
     const editStatus = talk.querySelector("input[name='edit-status-" + talkId + "']:checked").value;
     const reviewStatus = talk.querySelector("input[name='review-status-" + talkId + "']:checked").value;
 
-    // If review status is approved, disable most edit controls. Force reviewers to
-    // unapprove before editing. Not disabled:
+    // If review status is reviewed, disable most edit controls. Force reviewers to
+    // unreview before editing. Not disabled:
     // - play button
     // - notes
     // - review status
-    if (reviewStatus == "approved") {
+    if (reviewStatus != "reviewing") {
       disableTalkControls(talk, true);
       talk.querySelectorAll("button.talk-time-seek").forEach((e) => { e.disabled = false; });
       talk.querySelector(".notes").disabled = false;
@@ -329,14 +322,9 @@ function updateTalkControls(talk) {
       talk.querySelectorAll(".review-status input").forEach((e) => { e.disabled = false; });
     }
 
-    // Otherwise, enable almost everything... EXCEPT 'approve' when edit status
-    // is 'incomplete'
+    // Otherwise, enable everything
     else {
       disableTalkControls(talk, false);
-
-      if (editStatus == "incomplete") {
-        talk.querySelector(".review-status input[value='approved']").disabled = true;
-      }
     }
   }
 }

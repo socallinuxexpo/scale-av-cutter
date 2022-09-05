@@ -55,19 +55,19 @@
               </div>
               <div class="edit-status">
                 <strong><label>Edit status</label></strong>
-                {% for status in EditStatus %}
+                {% for status in edit_statuses %}
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="edit-status-{{ talk.id }}" id="{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.edit_status == status else ''}} autocomplete="off">
-                  <label class="form-check-label" for="{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
+                  <input class="form-check-input" type="radio" name="edit-status-{{ talk.id }}" id="edit-{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.edit_status == status else ''}} autocomplete="off">
+                  <label class="form-check-label" for="edit-{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
                 </div>
                 {% endfor %}
               </div>
               <div class="review-status">
                 <strong><label>Review status</label></strong>
-                {% for status in ReviewStatus %}
+                {% for status in review_statuses %}
                 <div class="form-check">
-                  <input class="form-check-input" type="radio" name="review-status-{{ talk.id }}" id="{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.review_status == status else ''}} autocomplete="off">
-                  <label class="form-check-label" for="{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
+                  <input class="form-check-input" type="radio" name="review-status-{{ talk.id }}" id="review-{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.review_status == status else ''}} autocomplete="off">
+                  <label class="form-check-label" for="review-{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
                 </div>
                 {% endfor %}
               </div>

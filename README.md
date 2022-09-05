@@ -112,19 +112,16 @@ contents of certain talks update, reinvoking /xml should update it.
 
 Now visit the index page, login as admin, and set the Youtube VID of each
 room-day's stream. Let your editors go wild with inputting cut times. Let your
-reviewers approve each cut.
+reviewers make the final tweaks or judgment of usability.
 
-After all the input is complete, grab the set of all Done and Approved cuts:
+After all the input is complete, grab the set of all reviewed Done cuts:
 
 ```
 curl \
-  http://localhost:5000/json?approved=1 \
+  http://localhost:5000/json \
   -b "password=<ADMIN_KEY" \
   > approved.json
 ```
-
-This endpoint also accepts a "day" parameter to filter by Thursday, Friday,
-etc.
 
 Once you have this JSON file, you can check out the [tools](./tools) to
 actually process the cuts.

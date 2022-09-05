@@ -1,7 +1,21 @@
 from app import db
 
-EditStatus = ["incomplete", "done", "unusable"]
-ReviewStatus = ["reviewing", "approved", "rejected"]
+class StringEnum:
+
+    @classmethod
+    def values(cls):
+        attrs = cls.__dict__.keys()
+        return set(attr for attr in attrs if not attr.startswith("__") and attr != "values")
+
+class EditStatus(StringEnum):
+    incomplete = 'incomplete'
+    done = 'done'
+    unusable = 'unusable'
+
+class ReviewStatus(StringEnum):
+    reviewing = 'reviewing'
+    done = 'done'
+    unusable = 'unusable'
 
 class RoomDay(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
@@ -31,7 +45,7 @@ class Talk(db.Model):
     start       = db.Column(db.Integer, default=0, nullable=False)
     end         = db.Column(db.Integer, default=0, nullable=False)
 
-    review_status   = db.Column(db.Enum(*ReviewStatus, name="ReviewStatus"), default=ReviewStatus[0], nullable=False)
-    edit_status     = db.Column(db.Enum(*EditStatus, name="EditStatus"), default=EditStatus[0], nullable=False)
+    review_status   = db.Column(db.VARCHAR, default=ReviewStatus.reviewing, nullable=False)
+    edit_status     = db.Column(db.VARCHAR, default=EditStatus.incomplete, nullable=False)
 
     last_edited_by = db.Column(db.Text, nullable=False, default="")

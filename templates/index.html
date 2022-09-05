@@ -55,9 +55,9 @@
       <span> - </span>
       <span class="roomday-no-vid" {{ 'hidden' if room_day.vid }}>(NO VID)</span>
       <span class="roomday-status" {{ 'hidden' if not room_day.vid }}>
-        {% if statuses[room_day.id]["needs_cut"] %}<span class="roomday-status-cut">(NEEDS CUT)</span>{% endif %}
-        {% if statuses[room_day.id]["needs_review"] %}<span class="roomday-status-review">(NEEDS REVIEW)</span>{% endif %}
-        {% if statuses[room_day.id]["done"] %}<span class="roomday-status-done">(DONE)</span>{% endif %}
+        {% if room_day.needs_cut %}<span class="roomday-status-cut">(NEEDS CUT)</span>{% endif %}
+        {% if room_day.needs_review %}<span class="roomday-status-review">(NEEDS REVIEW)</span>{% endif %}
+        {% if room_day.done %}<span class="roomday-status-done">(DONE)</span>{% endif %}
       </span>
       <span class="roomday-comment" {{ 'hidden' if not room_day.comment }}>
         <span> - </span>

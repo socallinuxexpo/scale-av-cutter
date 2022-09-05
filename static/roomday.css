@@ -118,6 +118,3 @@ button.notes-save:disabled {
 .header-unusable-reviewing {
   background: linear-gradient(to right, #d39e00, #545b62 50%);
 }
-.header-rejected {
-  background: linear-gradient(to left, #bd2130, #545b62);
-}
