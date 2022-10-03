@@ -31,14 +31,14 @@ def validate_youtube_description(desc):
 def obtain_credentials_from_flow(client_file):
     flow = InstalledAppFlow.from_client_secrets_file(
         client_file,
-        scopes=['https://www.googleapis.com/auth/youtube'])
+        scopes=['https://www.googleapis.com/auth/youtube.upload'])
     flow.run_console()
     return flow.credentials
 
 def obtain_credentials_from_token(token_file):
     return Credentials.from_authorized_user_file(
         token_file,
-        scopes=['https://www.googleapis.com/auth/youtube'])
+        scopes=['https://www.googleapis.com/auth/youtube.upload'])
 
 def make_video_description(talk, desc):
     link = "https://www.socallinuxexpo.org" + talk["path"]
