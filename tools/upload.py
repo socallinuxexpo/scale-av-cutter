@@ -152,6 +152,7 @@ def main():
                 },
                 "status": {
                     "privacyStatus": args.privacy,
+                    "selfDeclaredMadeForKids": False,
                 },
             },
             media_body=video)
