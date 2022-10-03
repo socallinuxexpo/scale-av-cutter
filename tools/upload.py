@@ -155,7 +155,12 @@ def main():
                 },
             },
             media_body=video)
-        response = request.execute()
+        response = None
+        while response is None:
+            status, response = request.next_chunk()
+            if status:
+                n = int(status.progress() * 100)
+                print(f"Uploaded {n}%...", end='\r')
         url = f"https://youtube.com/watch?v={response['id']}"
         print("Upload complete: " + url)
         if args.save_progress:
