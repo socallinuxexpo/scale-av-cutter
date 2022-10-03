@@ -6,6 +6,4 @@ __pycache__/
 
 # Defaults
 workdir/
-credentials.json
-client_secrets.json
-progress.json
+*.json
