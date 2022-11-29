@@ -42,12 +42,12 @@ Example of configuring postgresql in an Ubuntu system:
 ```
 sudo su - postgres
 psql
-create user SOME_USER encrypted password SOME_PASSWORD;
+create user SOME_USER encrypted password 'SOME_PASSWORD';
 create database scale_av_cutter_test;
 grant all privileges on database scale_av_cutter_test to SOME_USER;
 ```
 
-Then, you'll be able to use a SQLAlchemy string of `postgres://SOME_USER:SOME_PASSWORD@localhost/scale_av_cutter_test`.
+Then, you'll be able to use a SQLAlchemy string (`DATABASE_URL`) of `postgres://SOME_USER:SOME_PASSWORD@localhost/scale_av_cutter_test`.
 
 ### Python dependencies
 
