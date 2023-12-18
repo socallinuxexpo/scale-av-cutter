@@ -4,10 +4,9 @@ import os
 import json
 import argparse
 import re
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
+from credentials import obtain_credentials_from_flow, obtain_credentials_from_token
 
 vformat = "mp4"
 
@@ -27,18 +26,6 @@ def validate_youtube_description(desc):
         raise Exception(f"Description '{desc}' is longer than 5000 bytes. Modify JSON to include a valid youtube_description field.")
     if "<" in desc or ">" in desc:
         raise Exception(f"Description '{desc}' contains an invalid character. Modify JSON to include a valid youtube_description field.")
-
-def obtain_credentials_from_flow(client_file):
-    flow = InstalledAppFlow.from_client_secrets_file(
-        client_file,
-        scopes=['https://www.googleapis.com/auth/youtube.upload'])
-    flow.run_console()
-    return flow.credentials
-
-def obtain_credentials_from_token(token_file):
-    return Credentials.from_authorized_user_file(
-        token_file,
-        scopes=['https://www.googleapis.com/auth/youtube.upload'])
 
 def make_video_description(talk, desc):
     link = "https://www.socallinuxexpo.org" + talk["path"]
@@ -121,7 +108,6 @@ def main():
     print(f"Total: {len(talks)} talks to upload")
     if not talks:
         return
-
     # Google API
     if os.path.isfile(args.token):
         print(f"Found {args.token}, reusing credentials")

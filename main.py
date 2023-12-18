@@ -5,6 +5,7 @@ from flask import render_template, request, send_from_directory, abort, redirect
 from app import app, db
 
 from models import *
+app.app_context().push()
 db.create_all()
 
 from util import catch_error, expect, commit_db, input_error, access_error, error
@@ -17,8 +18,7 @@ def room_days_query():
 
 # Match password against configured passwords
 def check_level(password):
-    # Yes, it's vulnerable to timing attacks. Ping the maintainer if this
-    # really matters.
+    # Yes, it's vulnerable to timing attacks. Ping the maintainer if this really matters.
     if password == app.config['EDITOR_KEY']:
         return 1
     if password == app.config['REVIEWER_KEY']:
