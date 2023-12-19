@@ -7,10 +7,12 @@ import re
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from credentials import obtain_credentials_from_flow, obtain_credentials_from_token
+from unidecode import unidecode
 
 vformat = "mp4"
 
 def rdash(s):
+    s = unidecode(s)
     return re.sub('[^0-9a-zA-Z]+', '-', s)
 
 def validate_youtube_title(title):

@@ -7,10 +7,12 @@ import json
 import subprocess
 import argparse
 import shutil
+from unidecode import unidecode
 
 vformat = "mp4"
 
 def rdash(s):
+    s = unidecode(s)
     return re.sub('[^0-9a-zA-Z]+', '-', s)
 
 def download_video(vid, outfile, container_format):
