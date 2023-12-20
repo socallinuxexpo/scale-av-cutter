@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os, argparse, json
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.oauth2.credentials import Credentials
@@ -12,7 +14,9 @@ def parse_args():
 
 def main():
     args = parse_args()
+    google_api(args)
 
+def google_api(args):
     if os.path.isfile(args.token):
         print(f"Found {args.token}, reusing credentials")
         credentials = obtain_credentials_from_token(args.token)
@@ -26,6 +30,7 @@ def main():
                 "client_secret": credentials.client_secret,
                 "refresh_token": credentials.refresh_token,
             }, f)
+    return credentials
 
 def obtain_credentials_from_flow(client_file):
     flow = InstalledAppFlow.from_client_secrets_file(

@@ -6,7 +6,7 @@ import argparse
 import re
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
-from credentials import obtain_credentials_from_flow, obtain_credentials_from_token
+from credentials import google_api
 from unidecode import unidecode
 
 vformat = "mp4"
@@ -111,19 +111,7 @@ def main():
     if not talks:
         return
     # Google API
-    if os.path.isfile(args.token):
-        print(f"Found {args.token}, reusing credentials")
-        credentials = obtain_credentials_from_token(args.token)
-    else:
-        print(f"Cannot find token file at {args.token}, starting authentication process")
-        credentials = obtain_credentials_from_flow(args.client)
-    if args.save_token:
-        with open(args.token, "w") as f:
-            json.dump({
-                "client_id": credentials.client_id,
-                "client_secret": credentials.client_secret,
-                "refresh_token": credentials.refresh_token,
-            }, f)
+    credentials = google_api(args)
 
     # Upload!
     yt = build('youtube', 'v3', credentials=credentials)
