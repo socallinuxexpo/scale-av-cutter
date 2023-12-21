@@ -2,7 +2,7 @@ from app import db
 from models import RoomDay, Talk
 
 from xml.etree.ElementTree import fromstring
-from flask import Markup
+from markupsafe import Markup
 
 import iso8601
 
