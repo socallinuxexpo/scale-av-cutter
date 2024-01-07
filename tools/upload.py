@@ -51,7 +51,9 @@ def collect_talks(room_days, workdir):
         for talk in room_day["talks"]:
             talk_title = rdash(talk["title"])
             talk_name = f"{talk_title}.{vformat}"
+            thumbnail_name = f"{talk_title}.png"
             talk_path = os.path.join(subdir_path, talk_name)
+            thumbnail_path = os.path.join(subdir_path, thumbnail_name)
             if not os.path.isfile(talk_path):
                 talk_path = None
             youtube_title = talk.get("youtube_title", talk["title"])
@@ -63,6 +65,7 @@ def collect_talks(room_days, workdir):
                 "title": youtube_title,
                 "description": youtube_desc,
                 "file": talk_path,
+                "thumbnail": thumbnail_path,
             })
 
     return talks
@@ -138,12 +141,22 @@ def main():
             if status:
                 n = int(status.progress() * 100)
                 print(f"Uploaded {n}%...", end='\r')
-        url = f"https://youtube.com/watch?v={response['id']}"
+        id = response['id']
+        url = f"https://youtube.com/watch?v={id}"
         print("Upload complete: " + url)
         if args.save_progress:
             progress[talk["path"]] = True
             with open(args.progress, "w") as f:
                 json.dump(progress, f)
+
+        # Sets thumbnail of the video
+        thumbnailPath = talk["thumbnail"]
+
+        request = yt.thumbnails().set(
+            videoId = id,
+            media_body = MediaFileUpload(thumbnailPath)
+        )
+        request.execute()
 
 if __name__ == "__main__":
     main()

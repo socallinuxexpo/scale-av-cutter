@@ -233,6 +233,7 @@ def generate_json():
                     "edit_status": talk.edit_status,
                     "review_status": talk.review_status,
                     "notes": talk.notes,
+                    "thumbnail": talk.thumbnail,
                 }
                 for talk in room_day.talks if (
                     talk.review_status == "done" or
