@@ -24,7 +24,7 @@
 
         {% for talk in room_day.talks %}
         <div class="talk" data-id="{{ talk.id }}">
-          <button class="btn talk-header">
+          <button title="Locate this talk in the video, mark its start and end times, and select corresponding edit status" class="btn talk-header">
             <span class="talk-video-time"></span>
             <span class="talk-title">{{ talk.title|safe }}</span>
           </button>
@@ -35,28 +35,29 @@
               <div class="talk-time talk-time-start">
                 <label>Video start</label>
                 <input type="text" class="talk-time-input form-control mb-1" placeholder="0:00:00" data-initial="{{ talk.start }}">
-                <button type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
+                <button title="Plays video from the inputted start time" type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
                   <img src="/static/icons/play-fill.svg" alt="" width="24" height="24">
                 </button>
-                <button type="button" class="talk-time-sample btn btn-default" aria-label="Sample start time">
+                <button title="Selects current time as the talk start time" type="button" class="talk-time-sample btn btn-default" aria-label="Sample start time">
                   <img src="/static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
                 </button>
               </div>
               <div class="talk-time talk-time-end">
                 <label>Video end</label>
                 <input type="text" class="talk-time-input form-control mb-1" placeholder="0:00:00" data-initial="{{ talk.end }}">
-                <button type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
+                <button title="Plays video from the inputted end time" type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
                   <img src="/static/icons/play-fill.svg" alt="" width="24" height="24">
                 </button>
-                <button type="button" class="talk-time-sample btn btn-default" aria-label="Sample end time">
+                <button title="Selects current time as the talk end time" type="button" class="talk-time-sample btn btn-default" aria-label="Sample end time">
                   <img src="/static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
                 </button>
                 <br>
               </div>
               <div class="edit-status">
                 <strong><label>Edit status</label></strong>
+                {% set edit_titles = {"incomplete":"Tick me if the talk is cut off or incomplete", "done":"Tick me if the talk's start and end are found", "unusable":"Tick me if talk has no sound or other fatal issues"} %}
                 {% for status in edit_statuses %}
-                <div class="form-check">
+                <div class="form-check" title="{{ edit_titles[status] }}">
                   <input class="form-check-input" type="radio" name="edit-status-{{ talk.id }}" id="edit-{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.edit_status == status else ''}} autocomplete="off">
                   <label class="form-check-label" for="edit-{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
                 </div>
@@ -64,8 +65,9 @@
               </div>
               <div class="review-status">
                 <strong><label>Review status</label></strong>
+                {% set review_titles = {"reviewing":"Tick me if the talk's cuts are still under inspection", "done":"Tick me if talk is ready to be uploaded", "unusable":"Tick me if talk has no sound or other fatal issues"} %}
                 {% for status in review_statuses %}
-                <div class="form-check">
+                <div class="form-check" title="{{ review_titles[status] }}">
                   <input class="form-check-input" type="radio" name="review-status-{{ talk.id }}" id="review-{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.review_status == status else ''}} autocomplete="off">
                   <label class="form-check-label" for="review-{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
                 </div>
@@ -74,7 +76,7 @@
               <div><em>Last edited by: <span class="last-edited-by">{{ talk.last_edited_by }}</span></em><br><br></div>
             </div>
             <strong><label for="notes-{{ talk.id }}">Notes</label></strong>
-            <textarea class="notes" name="notes-{{ talk.id }}" id="notes-{{ talk.id }}" maxlength=3000>{{ talk.notes|e }}</textarea>
+            <textarea class="notes" name="notes-{{ talk.id }}" id="notes-{{ talk.id }}" maxlength=3000 placeholder="Record any extra helpful information or observations about the talk here.">{{ talk.notes|e }}</textarea>
             <button class="notes-save btn btn-secondary mb-1">Save notes</button>
           </div>
         </div>
