@@ -38,6 +38,11 @@
     {% set access_names = {1:"Editor", 2:"Reviewer", 3:"Admin"} %}
     <label>Display name: <strong>{{ name|e }}</strong></label><br>
     <label>Access level: <strong>{{ access_names[level] }}</strong></label>
+    {% if level == 1 %}
+    <p>Job Description: Once the admin adds videos, click on the following links and use the included tools to mark when the speaker starts speaking and when the speaker stops speaking for each talk.</p>
+    {% elif level == 2 %}
+    <p>Job Description: After the editor marks the start and stop times for each talk, check over the specified times and correct any mistakes.</p>
+    {% endif %}
     <button class="btn-sm btn-secondary float-right" type="submit" id="logout">Logout</button>
   </form>
 
@@ -46,8 +51,8 @@
     {% for room_day in room_days %}
     <div class="roomday" data-id="{{ room_day.id }}" data-vid="{{ room_day.vid }}">
       {% if level >= 3 %}
-      <button type="button" class="roomday-vid">VID</button>
-      <button type="button" class="roomday-comment-button">
+      <button title="Input Youtube video ID for the room" type="button" class="roomday-vid">VID</button>
+      <button title="Add a comment for the room" type="button" class="roomday-comment-button">
         <img src="/static/icons/info.svg" alt="" width="24" height="24">
       </button>
       {% endif %}
