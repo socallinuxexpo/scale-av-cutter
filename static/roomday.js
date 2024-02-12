@@ -79,13 +79,6 @@ document.addEventListener("DOMContentLoaded", function()
       });
     }
 
-    // Thumbnail time
-    const timeThumbnail = talk.querySelector(".talk-time-thumbnail");
-    timeThumbnail.addEventListener("click", () => {
-      const timeStr = convertTimeInput(player.getCurrentTime());
-      sendThumbnail(timeStr, talk);
-    });
-
     // Notes initialized to their textcontent (from backend)
     const notes = talk.querySelector(".notes");
     notes.value = notes.textContent;
@@ -175,6 +168,10 @@ function sendTalkState(talk) {
   const editStatus = talk.querySelector("input[name='edit-status-" + talkId + "']:checked").value;
   const thumbnail = parseTimeInput(talk.querySelector(".talk-time-thumbnail .talk-time-input").value);
 
+  if (thumbnail > end || thumbnail < start) {
+    alert("Invalid thumbnail selection. Make sure the thumbnail time occurs during the talk.");
+  }
+
   const formData = new FormData();
   formData.append("id", talkId);
   formData.append("start", start);
@@ -230,7 +227,6 @@ function sendReview(talk) {
  * Based on combination of edit and review status
  */
 function updateTalkColor(talk) {
-  console.log("FHIEOWFJIOE");
   const talkId = talk.dataset.id;
   const editStatus = talk.querySelector("input[name='edit-status-" + talkId + "']:checked").value;
   const reviewStatus = talk.querySelector("input[name='review-status-" + talkId + "']:checked").value;
