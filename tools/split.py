@@ -52,7 +52,7 @@ def make_thumbnail(video, time, outfile):
     ret = subprocess.call([
         "ffmpeg",
         "-y",               # Yes, overwrite
-        "-ss", time,        # Time of thumbnail capture
+        "-ss", str(time),   # Time of thumbnail capture
         "-i", video,        # Input
         "-frames", "1",     # Number of frames
         outfile,            # Output
@@ -129,6 +129,7 @@ def main():
             talk_name = f"{title}.{vformat}"
             image_name = f"{title}.png"
             talk_path = os.path.join(subdir_path, talk_name)
+            thumbnail_path = os.path.join(subdir_path, image_name)
 
             if not make_cut(video_path, start, end, outfile=talk_path):
                 if args.skip_download_failure:
@@ -136,7 +137,11 @@ def main():
                     continue
                 sys.exit(f"ERROR: Failed to cut clip of {title}.")
 
-            make_thumbnail(video_path, thumbnail, outfile=os.path.join(subdir_path, image_name))
+            if not make_thumbnail(video_path, thumbnail, outfile=thumbnail_path):
+                if args.skip_download_failure:
+                    print(f"WARNING: Failed to make thumbnail for {title}. Skipping.")
+                    continue
+                sys.exit(f"ERROR: Failed to make thumbnail for {title}.")
 
 if __name__ == "__main__":
     main()

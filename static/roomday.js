@@ -35,8 +35,6 @@ document.addEventListener("DOMContentLoaded", function()
       const timeInput = talkTime.querySelector(".talk-time-input");
       const timeSeek = talkTime.querySelector(".talk-time-seek");
       const timeSample = talkTime.querySelector(".talk-time-sample");
-      const timeThumbnail = talkTime.querySelector(".talk-time-thumbnail");
-      console.log("fwefwef");
 
       timeSeek.addEventListener("click", () => {
         if (player == null) {
@@ -58,16 +56,6 @@ document.addEventListener("DOMContentLoaded", function()
           timeInput.dispatchEvent(new Event("change", { bubbles: true }));
         }
       });
-      if (timeThumbnail) {
-        timeThumbnail.addEventListener("click", () => {
-          console.log("qwerty");
-          if (player == null) {
-            return;
-          }
-          const timeStr = convertTimeInput(player.getCurrentTime()); // need to save this current time into a variable
-          sendThumbnail(timeStr, talk);
-        })
-      }
       
       timeInput.addEventListener("change", () => { sendTalkState(talk); });
       timeInput.value = convertTimeInput(timeInput.dataset.initial);
@@ -75,7 +63,6 @@ document.addEventListener("DOMContentLoaded", function()
 
     // Edit status
     const editStatuses = talk.querySelectorAll(".edit-status input");
-    console.log("FHIEOWFJIOE");
     for (const editStatus of editStatuses) {
       editStatus.addEventListener("change", () => {
         sendTalkState(talk);
@@ -85,13 +72,19 @@ document.addEventListener("DOMContentLoaded", function()
 
     // Review status
     const reviewStatuses = talk.querySelectorAll(".review-status input");
-    console.log("FHIEOWFJIOE");
     for (const reviewStatus of reviewStatuses) {
       reviewStatus.addEventListener("change", () => {
         sendReview(talk);
         updateTalkColor(talk);
       });
     }
+
+    // Thumbnail time
+    const timeThumbnail = talk.querySelector(".talk-time-thumbnail");
+    timeThumbnail.addEventListener("click", () => {
+      const timeStr = convertTimeInput(player.getCurrentTime());
+      sendThumbnail(timeStr, talk);
+    });
 
     // Notes initialized to their textcontent (from backend)
     const notes = talk.querySelector(".notes");
@@ -176,41 +169,17 @@ function convertTimeInput(timestamp) {
 }
 
 function sendTalkState(talk) {
-  console.log("FJOIEWJFOEWJFOWEFjOW")
   const talkId = talk.dataset.id;
   const start = parseTimeInput(talk.querySelector(".talk-time-start .talk-time-input").value);
   const end = parseTimeInput(talk.querySelector(".talk-time-end .talk-time-input").value);
   const editStatus = talk.querySelector("input[name='edit-status-" + talkId + "']:checked").value;
+  const thumbnail = parseTimeInput(talk.querySelector(".talk-time-thumbnail .talk-time-input").value);
 
   const formData = new FormData();
   formData.append("id", talkId);
   formData.append("start", start);
   formData.append("end", end);
   formData.append("status", editStatus);
-  console.log("Sending update for " + talkId);
-  fetch("/edit", {
-    method: "POST",
-    body: formData,
-  })
-    .then((response) => {
-      return response.json();
-    })
-    .then((data) => {
-      if (data.error != null) {
-        window.alert("ERROR: " + data.error);
-      } else {
-        updateTalkControls(talk);
-        updateLastEditedBy(talk, displayName);
-      }
-    });
-}
-
-function sendThumbnail(time, talk) {
-  const talkId = talk.dataset.id;
-  const thumbnail = time;
-
-  const formData = new FormData();
-  formData.append("id", talkId);
   formData.append("thumbnail", thumbnail);
   console.log("Sending update for " + talkId);
   fetch("/edit", {
