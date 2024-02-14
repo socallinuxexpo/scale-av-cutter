@@ -233,6 +233,7 @@ def generate_json():
                     "edit_status": talk.edit_status,
                     "review_status": talk.review_status,
                     "notes": talk.notes,
+                    "thumbnail": talk.thumbnail,
                 }
                 for talk in room_day.talks if (
                     talk.review_status == "done" or
@@ -259,11 +260,13 @@ def edit():
     start_str = expect(request, 'start')
     end_str = expect(request, 'end')
     status = expect(request, 'status')
+    thumbnail_str = expect(request, 'thumbnail')
     try:
         talk_id = int(talk_id_str)
         start = int(start_str)
         end = int(end_str)
         assert status in EditStatus.values()
+        thumbnail = int(thumbnail_str)
     except:
         input_error()
 
@@ -281,6 +284,7 @@ def edit():
     talk.end = end
     talk.edit_status = status
     talk.last_edited_by = name
+    talk.thumbnail = thumbnail
     return {}
 
 @app.route('/notes', methods=['POST'])

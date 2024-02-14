@@ -32,6 +32,7 @@ def parse_signxml(data):
             "path": path,
             "start": start_time,
             "end": end_time,
+            "thumbnail": 0,
             "title": title,
             "speakers": speakers,
             "description": description,

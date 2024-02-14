@@ -49,3 +49,5 @@ class Talk(db.Model):
     edit_status     = db.Column(db.VARCHAR, default=EditStatus.incomplete, nullable=False)
 
     last_edited_by = db.Column(db.Text, nullable=False, default="")
+
+    thumbnail   = db.Column(db.Integer, default=0, nullable=False)

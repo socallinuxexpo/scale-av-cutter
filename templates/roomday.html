@@ -53,6 +53,18 @@
                 </button>
                 <br>
               </div>
+              <div class="talk-time talk-time-thumbnail">
+                <label>Video thumbnail</label>
+                <input type="text" class="talk-time-input form-control mb-1" placeholder="0:00:00" data-initial="{{ talk.thumbnail }}">
+                <button title="Plays video from the inputted thumbnail time" type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
+                  <img src="/static/icons/play-fill.svg" alt="" width="24" height="24">
+                </button>
+                <button title="Selects current time as the talk thumbnail frame" type="button" class="talk-time-sample btn btn-default" aria-label="Sample end time">
+                  <img src="/static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
+                </button>
+                <br>
+              </div>
+              <div></div>
               <div class="edit-status">
                 <strong><label>Edit status</label></strong>
                 {% set edit_titles = {"incomplete":"Tick me if the talk is cut off or incomplete", "done":"Tick me if the talk's start and end are found", "unusable":"Tick me if talk has no sound or other fatal issues"} %}

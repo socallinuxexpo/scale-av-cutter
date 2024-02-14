@@ -35,6 +35,7 @@ document.addEventListener("DOMContentLoaded", function()
       const timeInput = talkTime.querySelector(".talk-time-input");
       const timeSeek = talkTime.querySelector(".talk-time-seek");
       const timeSample = talkTime.querySelector(".talk-time-sample");
+
       timeSeek.addEventListener("click", () => {
         if (player == null) {
           return;
@@ -55,6 +56,7 @@ document.addEventListener("DOMContentLoaded", function()
           timeInput.dispatchEvent(new Event("change", { bubbles: true }));
         }
       });
+      
       timeInput.addEventListener("change", () => { sendTalkState(talk); });
       timeInput.value = convertTimeInput(timeInput.dataset.initial);
     }
@@ -164,12 +166,19 @@ function sendTalkState(talk) {
   const start = parseTimeInput(talk.querySelector(".talk-time-start .talk-time-input").value);
   const end = parseTimeInput(talk.querySelector(".talk-time-end .talk-time-input").value);
   const editStatus = talk.querySelector("input[name='edit-status-" + talkId + "']:checked").value;
+  let thumbnail = parseTimeInput(talk.querySelector(".talk-time-thumbnail .talk-time-input").value);
+
+  if ((thumbnail < start || thumbnail > end) && start <= end) {
+    talk.querySelector(".talk-time-thumbnail .talk-time-input").value = talk.querySelector(".talk-time-start .talk-time-input").value;
+    thumbnail = start;
+  }
 
   const formData = new FormData();
   formData.append("id", talkId);
   formData.append("start", start);
   formData.append("end", end);
   formData.append("status", editStatus);
+  formData.append("thumbnail", thumbnail);
   console.log("Sending update for " + talkId);
   fetch("/edit", {
     method: "POST",
@@ -317,6 +326,7 @@ function updateTalkControls(talk) {
     if (reviewStatus != "reviewing") {
       disableTalkControls(talk, true);
       talk.querySelectorAll("button.talk-time-seek").forEach((e) => { e.disabled = false; });
+      talk.querySelectorAll("button.talk-time-thumbnail").forEach((e) => { e.disabled = false; });
       talk.querySelector(".notes").disabled = false;
       updateNotesSaveButton(talk);
       talk.querySelectorAll(".review-status input").forEach((e) => { e.disabled = false; });
