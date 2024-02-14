@@ -166,10 +166,11 @@ function sendTalkState(talk) {
   const start = parseTimeInput(talk.querySelector(".talk-time-start .talk-time-input").value);
   const end = parseTimeInput(talk.querySelector(".talk-time-end .talk-time-input").value);
   const editStatus = talk.querySelector("input[name='edit-status-" + talkId + "']:checked").value;
-  const thumbnail = parseTimeInput(talk.querySelector(".talk-time-thumbnail .talk-time-input").value);
+  let thumbnail = parseTimeInput(talk.querySelector(".talk-time-thumbnail .talk-time-input").value);
 
-  if (thumbnail > end || thumbnail < start) {
-    alert("Invalid thumbnail selection. Make sure the thumbnail time occurs during the talk.");
+  if ((thumbnail < start || thumbnail > end) && start <= end) {
+    talk.querySelector(".talk-time-thumbnail .talk-time-input").value = talk.querySelector(".talk-time-start .talk-time-input").value;
+    thumbnail = start;
   }
 
   const formData = new FormData();
