@@ -179,6 +179,26 @@ def comment():
     room_day.comment = comment
     return {}
 
+@app.route('/checked_out', methods=['POST'])
+@catch_error
+@commit_db
+def checked_out():
+    # Check for access level
+    _, level = access(require_name=False)
+    if level < 1:
+        access_error()
+
+    room_day_id = expect(request, 'id')
+    checked_out_by = expect(request, 'checked_out_by')
+
+    # Get room day
+    room_day = db.session.query(RoomDay).get(room_day_id)
+    if not room_day:
+        input_error()
+
+    room_day.checked_out_by = checked_out_by
+    return {}
+
 @app.route('/xml', methods=['POST'])
 @catch_error
 @commit_db

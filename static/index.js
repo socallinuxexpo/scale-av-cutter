@@ -1,5 +1,8 @@
 'use strict';
 
+// Globals inherited from HTML:
+// - displayName
+
 // Main
 document.addEventListener("DOMContentLoaded", function()
 {
@@ -50,6 +53,20 @@ document.addEventListener("DOMContentLoaded", function()
         if (comment != null) {
           sendComment(roomday, comment);
         }
+      });
+    }
+
+    const checkInButton = roomday.querySelector(".roomday-checkin");
+    if (checkInButton != null) {
+      checkInButton.addEventListener("click", () => {
+        sendCurrentlyEditing(roomday, displayName, true);
+      });
+    }
+
+    const checkOutButton = roomday.querySelector(".roomday-checkout");
+    if (checkOutButton != null) {
+      checkOutButton.addEventListener("click", () => {
+        sendCurrentlyEditing(roomday, "", false);
       });
     }
   }
@@ -109,4 +126,45 @@ function sendComment(roomday, comment) {
         roomday.querySelector(".roomday-comment-text").textContent = comment;
       }
     });
+}
+
+function sendCurrentlyEditing(roomday, name, checkingIn) {
+  const roomday_id = roomday.dataset.id;
+  const nameEle = roomday.querySelector(".currently-editing");
+
+  if (checkingIn && nameEle.innerText != "") {
+    alert("This room is currently being edited. Please choose another room to edit.");
+    return;
+  }
+
+  if (!checkingIn && nameEle.innerText != displayName) {
+    alert("You are not editing this room. Cannot check out for another person.");
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("id", roomday_id);
+  formData.append("checked_out_by", name);
+
+  fetch('/checked_out', {
+    method: "POST",
+    body: formData,
+    credentials: "same-origin",
+  })
+    .then((response) => {
+      return response.json();
+    })
+    .then((data) => {
+      if (data.error != null) {
+        window.alert("ERROR: " + data.error);
+      } else {
+        updateCurrentlyEditing(roomday, name);
+        roomday.dataset.checked_out_by = name;
+      }
+    });
+}
+
+function updateCurrentlyEditing(roomday, name) {
+  const nameEle = roomday.querySelector(".currently-editing");
+  nameEle.textContent = name;
 }

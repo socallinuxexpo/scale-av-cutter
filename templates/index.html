@@ -68,11 +68,20 @@
         <span> - </span>
         <span class="roomday-comment-text">{{ room_day.comment|e }}</span>
       </span>
+      <br>
+      <button title="Click this if you are currently editing this room" type="button" class="roomday-checkin">CHECK IN</button>
+      <button title="Click this if you are no longer editing this room" type="button" class="roomday-checkout">CHECK OUT</button>
+      
+      <em>Currently edited by: <span class="currently-editing">{{ room_day.checked_out_by }}</span></em>
+      <br><br>
     </div>
     {% endfor %}
   </div>
   {% endif %}
 
+  <script>
+    var displayName = {{ name|tojson }};
+  </script>
   <script src="/static/index.js?v=1"></script>
 </body>
 </html>
