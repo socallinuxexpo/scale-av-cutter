@@ -102,6 +102,17 @@ document.addEventListener("DOMContentLoaded", function()
   }
 });
 
+// Automatic time skip for Youtube player
+var player = document.querySelector("#player");
+player.focus();
+document.addEventListener('keydown', function(e) {
+  if (e.key == "ArrowLeft") {
+    player.seekTo(player.getCurrentTime() - 10, true);
+  } else if (e.key == "ArrowRight") {
+    player.seekTo(player.getCurrentTime() + 10, true);
+  }
+});
+
 function getVid() {
   return document.querySelector("#player").dataset.vid;
 }
