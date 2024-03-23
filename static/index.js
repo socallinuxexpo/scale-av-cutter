@@ -2,6 +2,7 @@
 
 // Globals inherited from HTML:
 // - displayName
+// - accessLevel
 
 // Main
 document.addEventListener("DOMContentLoaded", function()
@@ -137,7 +138,7 @@ function sendCurrentlyEditing(roomday, name, checkingIn) {
     return;
   }
 
-  if (!checkingIn && nameEle.innerText != displayName) {
+  if (!checkingIn && nameEle.innerText != displayName && accessLevel != 3) {
     alert("You are not editing this room. Cannot check out for another person.");
     return;
   }
