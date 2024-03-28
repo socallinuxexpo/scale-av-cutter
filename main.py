@@ -16,6 +16,13 @@ def room_days_query():
                 .order_by(RoomDay.date)\
                 .order_by(RoomDay.room)
 
+def room_days_query_individual(day, room):
+    return db.session.query(RoomDay)\
+                .filter(RoomDay.day == day)\
+                .filter(RoomDay.room == room)\
+                .order_by(RoomDay.date)\
+                .order_by(RoomDay.room)
+
 # Match password against configured passwords
 def check_level(password):
     # Yes, it's vulnerable to timing attacks. Ping the maintainer if this really matters.
@@ -217,6 +224,48 @@ def generate_json():
     room_days_info = []
 
     room_days = room_days_query().all()
+    for room_day in room_days:
+        room_day_info = {
+            "room": room_day.room,
+            "day": room_day.day,
+            "vid": room_day.vid,
+            "talks": [
+                {
+                    "title": talk.title,
+                    "description": talk.description,
+                    "speakers": talk.speakers,
+                    "path": talk.path,
+                    "start": talk.start,
+                    "end": talk.end,
+                    "edit_status": talk.edit_status,
+                    "review_status": talk.review_status,
+                    "notes": talk.notes,
+                    "thumbnail": talk.thumbnail,
+                }
+                for talk in room_day.talks if (
+                    talk.review_status == "done" or
+                    unreviewed and talk.edit_status == "done"
+                )
+            ],
+        }
+        if len(room_day_info["talks"]) > 0:
+            room_days_info.append(room_day_info)
+
+    return {"room_days": room_days_info}
+
+@app.route('/json/<day>/<room>')
+@catch_error
+def generate_json_individual(day, room):
+    # Check for access level
+    _, level = access(require_name=False)
+    if level < 1:
+        access_error()
+
+    unreviewed = expect(request, "unreviewed", optional=True)
+
+    room_days_info = []
+
+    room_days = room_days_query_individual(day, room).all()
     for room_day in room_days:
         room_day_info = {
             "room": room_day.room,
