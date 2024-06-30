@@ -54,7 +54,8 @@ def make_thumbnail(video, time, outfile):
         "-y",               # Yes, overwrite
         "-ss", str(time),   # Time of thumbnail capture
         "-i", video,        # Input
-        "-frames", "1",     # Number of frames
+        "-frames:v", "1",   # Number of frames
+        "-qscale:v", "2",   # Quality of JPEG
         outfile,            # Output
     ])
 
@@ -127,7 +128,7 @@ def main():
                 print(f"WARNING: talk {title} has zero length video. Skipping." )
 
             talk_name = f"{title}.{vformat}"
-            image_name = f"{title}.png"
+            image_name = f"{title}.jpeg"
             talk_path = os.path.join(subdir_path, talk_name)
             thumbnail_path = os.path.join(subdir_path, image_name)
 

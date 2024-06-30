@@ -51,7 +51,7 @@ def collect_talks(room_days, workdir):
         for talk in room_day["talks"]:
             talk_title = rdash(talk["title"])
             talk_name = f"{talk_title}.{vformat}"
-            thumbnail_name = f"{talk_title}.png"
+            thumbnail_name = f"{talk_title}.jpeg"
             talk_path = os.path.join(subdir_path, talk_name)
             thumbnail_path = os.path.join(subdir_path, thumbnail_name)
             if not os.path.isfile(talk_path):
