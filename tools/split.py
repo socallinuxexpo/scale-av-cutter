@@ -21,10 +21,12 @@ def download_video(vid, outfile, container_format):
     """
     url = f"https://youtube.com/watch?v={vid}"
 
-    download_format = "bestvideo+bestaudio/best"
-    if container_format == "mp4":
-        download_format = "mp4"
-
+    # Directly from yt-dlp manual
+    # Download the best mp4 video available, or the best video if no mp4 available
+    #  $ yt-dlp -f "bv*[ext=mp4]+ba[ext=m4a]/b[ext=mp4] / bv*+ba/b"
+ 
+    download_format = f"bv*[ext={container_format}]+ba[ext=m4a]/b[ext={container_format}] / bv*+ba/b"
+    
     ret = subprocess.call([
         "yt-dlp",
         "-o", outfile,          # Output filename
