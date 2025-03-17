@@ -228,6 +228,7 @@ def generate_json():
         room_day_info = {
             "room": room_day.room,
             "day": room_day.day,
+            "date": room_day.date,
             "vid": room_day.vid,
             "talks": [
                 {
@@ -270,6 +271,7 @@ def generate_json_individual(day, room):
         room_day_info = {
             "room": room_day.room,
             "day": room_day.day,
+            "date": room_day.date,
             "vid": room_day.vid,
             "talks": [
                 {
