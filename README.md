@@ -1,16 +1,58 @@
-scale-av-cutter
-===
+# scale-av-cutter
 
 Flask application to streamline process of splitting captured day-long
 recordings into separate talks.
 
-Note that if you only want to run the [tools](./tools) for downloading,
+[!NOTE]
+If you only want to run the [tools](./tools) for downloading,
 cutting, and uploading videos, you can just install the dependencies described
 in that directory, instead of the dependencies for this Flask app.
 
 
-Dependencies
----
+## Quick Start Guide
+
+This is perfect for those just getting their feet wet and want to quickly run the app to test and/or develop this application. This guide assumes you have docker installed. If not, see the [Docker Install Guide](https://docs.docker.com/desktop/)
+
+### Setup
+Install the python dependencies:
+```
+pip install -r requirements.txt
+```
+
+Copy the sample environment file:
+```
+cp .env.example .env
+```
+
+Make whatever changes you want.
+
+Start the database:
+
+```
+docker compose up -d
+```
+
+This starts a Postgres database on localhost:5432 with user `scale` and sample password `scale`
+
+Run the app:
+```
+gunicorn main:app
+```
+
+### Shutdown
+To turn off the postgres DB:
+```
+docker compose down
+```
+
+To turn off the postgress DB and delete the DB's data:
+```
+docker compose down -v
+```
+
+## Dependencies
+
+This app uses the `dotenv` package to automagically load environment variables from a `.env` file.
 
 By default, this app assumes the use of PostgreSQL as the backing database, so
 you must install a bunch of build tools as well Postgresql itself. If you only
@@ -18,10 +60,12 @@ want to run this **locally**, it's far easier to just use SQLite. You can
 either edit `requirements.txt` and take out the `psycopg2` requirement, or just
 filter it out when performing the pip install.
 
-### PostgreSQL dependencies
+[!NOTE]
+Running postgres locally has been made less scary now via docker compose. See the [Quick Start Guide](#quick-start-guide) above.
 
-This section is only for if you want to use PostgreSQL as the backing database,
-and/or don't mind installing the `psycopg2` requirement.
+### Manually Setting Up PostgreSQL
+
+This section is only for if you want to use PostgreSQL as the backing database, and set it up manually:
 
 Install the following from your package manager.
 
@@ -66,8 +110,7 @@ the [PostgreSQL dependencies](#postgresql-dependencies) section first. If the
 error persists, file an issue.
 
 
-Config
----
+## Config
 
 scale-av-cutter runs on environment variables. You must set these:
 
@@ -79,8 +122,8 @@ scale-av-cutter runs on environment variables. You must set these:
 - `APP_SETTINGS`: What config module to use. Pick either `config.DevelopmentConfig` or `config.ProductionConfig`
 
 
-Usage
----
+## Usage
+
 
 Run scale-av-cutter somewhere, like Heroku, a cloud VM, or even your local
 machine. Let's say you do the latter (make sure you have all of the required [environment variables](#config) set).
@@ -96,14 +139,16 @@ at a specific port (e.g. 8000), run it as:
 gunicorn -b 0.0.0.0:8000 main:app
 ```
 
-You can then import all the talks of a year via the `/xml` endpoint, passing it
-a URL to the year's signxml.
+You can then import all the talks of a year via the `/loadsigns` endpoint, passing it
+a URL to the year's signs JSON data.
+
+Example: [https://www.socallinuxexpo.org/scale/23x/signs](https://www.socallinuxexpo.org/scale/23x/signs)
 
 ```
 curl \
-  localhost:8000/xml \
+  localhost:8000/loadsigns \
   -X POST \
-  -d "url=<URL OF SIGNXML" \
+  -d "url=<URL OF SIGNXML>" \
   -b "password=<ADMIN_KEY>"
 ```
 
@@ -119,7 +164,7 @@ After all the input is complete, grab the set of all reviewed Done cuts:
 ```
 curl \
   http://localhost:5000/json \
-  -b "password=<ADMIN_KEY" \
+  -b "password=<ADMIN_KEY>" \
   > approved.json
 ```
 
