@@ -1,5 +1,4 @@
-include:
-  - infra.yaml
+name: scale-av-cutter
 
 services:
   web:
@@ -8,7 +7,9 @@ services:
       - "8000:8000"
     env_file: .env
     environment:
-      DATABASE_URL: postgresql://scale:scale@db/scale_av_cutter
-    depends_on:
-      db:
-        condition: service_healthy
+      DATABASE_URL: sqlite:////app/data/scale_av_cutter.db
+    volumes:
+      - db_data:/app/data
+
+volumes:
+  db_data:

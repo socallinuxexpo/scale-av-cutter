@@ -1,12 +1,5 @@
 FROM python:3.10.6-slim
 
-# Install PostgreSQL build dependencies (required for psycopg2)
-RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    gcc \
-    python3-dev \
-    && rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
 COPY requirements.txt .
@@ -19,7 +12,7 @@ COPY . .
 #   ADMIN_KEY      - Admin role group password
 #   REVIEWER_KEY   - Reviewer role group password
 #   EDITOR_KEY     - Editor role group password
-#   DATABASE_URL   - SQLAlchemy database URL (e.g. postgresql://user:pass@host/db)
+#   DATABASE_URL   - SQLAlchemy database URL (e.g. sqlite:////app/data/scale_av_cutter.db)
 #   APP_SETTINGS   - Config class (config.ProductionConfig or config.DevelopmentConfig)
 
 
