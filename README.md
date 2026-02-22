@@ -29,7 +29,7 @@ Make whatever changes you want.
 Start the database:
 
 ```
-docker compose up -d
+docker compose up db -d
 ```
 
 This starts a Postgres database on localhost:5432 with user `scale` and sample password `scale`

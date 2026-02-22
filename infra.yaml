@@ -1,4 +1,5 @@
 name: scale-av-cutter
+
 services:
   db:
     image: postgres:15
