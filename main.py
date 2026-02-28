@@ -9,7 +9,7 @@ app.app_context().push()
 db.create_all()
 
 from util import catch_error, expect, commit_db, input_error, access_error, error
-from signxml import parse_signxml, import_talks
+from signjson import parse_signjson, import_talks
 
 def room_days_query():
     return db.session.query(RoomDay)\
@@ -186,7 +186,7 @@ def comment():
     room_day.comment = comment
     return {}
 
-@app.route('/xml', methods=['POST'])
+@app.route('/loadsigns', methods=['POST'])
 @catch_error
 @commit_db
 def xml():
@@ -205,7 +205,7 @@ def xml():
     # Parse sign xml
     with urllib.request.urlopen(url) as response:
         data = response.read()
-    talks = parse_signxml(data)
+    talks = parse_signjson(data)
 
     # Import
     import_talks(talks, force_add)

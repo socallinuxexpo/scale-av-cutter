@@ -1,0 +1,15 @@
+name: scale-av-cutter
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      DATABASE_URL: sqlite:////app/data/scale_av_cutter.db
+    volumes:
+      - db_data:/app/data
+
+volumes:
+  db_data:
