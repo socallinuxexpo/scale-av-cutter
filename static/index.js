@@ -52,6 +52,31 @@ document.addEventListener("DOMContentLoaded", function()
     });
   }
 
+  // Export reviewed
+  const exportReviewedButton = document.getElementById("export-reviewed");
+  if (exportReviewedButton != null) {
+    exportReviewedButton.addEventListener("click", () => {
+      fetch('/json', { credentials: "same-origin" })
+        .then((response) => response.blob())
+        .then((blob) => {
+          const now = new Date();
+          const ts = [
+            now.getFullYear(),
+            (now.getMonth() + 1).toString().padStart(2, '0'),
+            now.getDate().toString().padStart(2, '0'),
+            now.getHours().toString().padStart(2, '0'),
+            now.getMinutes().toString().padStart(2, '0'),
+            now.getSeconds().toString().padStart(2, '0'),
+          ].join('_');
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = `reviewed_talks_${ts}.json`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+        });
+    });
+  }
+
   // Room day stuff
   const roomdays = document.querySelectorAll(".roomday");
   for (const roomday of roomdays) {
