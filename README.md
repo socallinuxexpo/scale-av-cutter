@@ -91,6 +91,8 @@ curl \
   -b "password=<ADMIN_KEY>"
 ```
 
+Or press the Import Schedule button on the index page as admin.
+
 This is safe to call repeatedly. During a convention, if descriptions or
 contents of certain talks update, reinvoking `/loadsigns` should update it.
 
@@ -98,14 +100,8 @@ Now visit the index page, login as admin, and set the Youtube VID of each
 room-day's stream. Let your editors go wild with inputting cut times. Let your
 reviewers make the final tweaks or judgment of usability.
 
-After all the input is complete, grab the set of all reviewed Done cuts:
-
-```
-curl \
-  http://localhost:8000/json \
-  -b "password=<ADMIN_KEY>" \
-  > approved.json
-```
+After all the input is complete, grab the set of all reviewed Done cuts 
+by going to the `/` index page as admin and press the Export button.
 
 Once you have this JSON file, you can check out the [tools](./tools) to
 actually process the cuts.
