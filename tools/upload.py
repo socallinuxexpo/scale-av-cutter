@@ -8,7 +8,6 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
 from credentials import google_api
 from unidecode import unidecode
-from datetime import datetime
 
 vformat = "mp4"
 
@@ -48,7 +47,6 @@ def collect_talks(room_days, workdir):
         date = room_day["date"]
 
         room_day_name = f"{rdash(room)}-{rdash(day)}"
-        room_date = datetime.strptime(date, '%a, %d %b %Y %H:%M:%S %Z').isoformat()
         subdir_path = os.path.join(workdir, room_day_name)
 
         for talk in room_day["talks"]:
@@ -69,7 +67,7 @@ def collect_talks(room_days, workdir):
                 "description": youtube_desc,
                 "file": talk_path,
                 "thumbnail": thumbnail_path,
-                "date": room_date,
+                "date": date,
             })
 
     return talks
@@ -142,7 +140,7 @@ def main():
                     "license": "creativeCommon",
                 },
                 "recordingDetails": {
-                    "recordingDate": date,
+                    "recordingDate": date + "T00:00:00Z",
                 }
             },
             media_body=video)
