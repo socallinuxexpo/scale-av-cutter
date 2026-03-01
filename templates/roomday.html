@@ -3,100 +3,107 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>SCALE AV Cutter - {{ room_day.day }}, {{ room_day.room }}</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="/static/roomday.css?v={{ static_ts }}">
-    <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="/static/roomday.css?v={{ static_ts }}">
+  <link rel="icon" href="data:,">
 </head>
 <body>
-  <div class="main">
 
-    <div class="left">
-      <a role="button" class="home-btn btn btn-secondary" href="/">Home</a>
-      <h1 class="d-inline-block">{{ room_day.day }}, {{ room_day.room }}</h1>
-      <div id="player" data-vid="{{ room_day.vid }}"></div>
-      <div id="no-vid" hidden>No video ID set for this room day yet. If you're an admin, set it from the index page. Otherwise, check back later.</div>
-    </div>
+  <nav class="navbar navbar-dark bg-dark">
+    <a class="btn btn-sm btn-outline-light mr-2" href="/">Home</a>
+    <span class="navbar-brand mb-0">{{ room_day.day }}, {{ room_day.room }}</span>
+  </nav>
 
-    <div class="right">
-      <h3>Talks</h3>
-      <br>
-      <div class="talks">
+  <div class="container-fluid">
+    <div class="row">
 
-        {% for talk in room_day.talks %}
-        <div class="talk" data-id="{{ talk.id }}">
-          <button title="Locate this talk in the video, mark its start and end times, and select corresponding edit status" class="btn talk-header">
-            <span class="talk-video-time"></span>
-            <span class="talk-title">{{ talk.title|safe }}</span>
-          </button>
-          <div class="talk-contents">
-            <a href="https://www.socallinuxexpo.org{{ talk.path }}">Talk page</a><br>
-            <label>Scheduled time: {{ talk.sched_start }} to {{ talk.sched_end }}</label><br>
-            <div class="talk-controls">
-              <div class="talk-time talk-time-start">
-                <label>Video start</label>
-                <input type="text" class="talk-time-input form-control mb-1" placeholder="0:00:00" data-initial="{{ talk.start }}">
-                <button title="Plays video from the inputted start time" type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
-                  <img src="/static/icons/play-fill.svg" alt="" width="24" height="24">
-                </button>
-                <button title="Selects current time as the talk start time" type="button" class="talk-time-sample btn btn-default" aria-label="Sample start time">
-                  <img src="/static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
-                </button>
-              </div>
-              <div class="talk-time talk-time-end">
-                <label>Video end</label>
-                <input type="text" class="talk-time-input form-control mb-1" placeholder="0:00:00" data-initial="{{ talk.end }}">
-                <button title="Plays video from the inputted end time" type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
-                  <img src="/static/icons/play-fill.svg" alt="" width="24" height="24">
-                </button>
-                <button title="Selects current time as the talk end time" type="button" class="talk-time-sample btn btn-default" aria-label="Sample end time">
-                  <img src="/static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
-                </button>
-                <br>
-              </div>
-              <div class="talk-time talk-time-thumbnail">
-                <label>Video thumbnail</label>
-                <input type="text" class="talk-time-input form-control mb-1" placeholder="0:00:00" data-initial="{{ talk.thumbnail }}">
-                <button title="Plays video from the inputted thumbnail time" type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
-                  <img src="/static/icons/play-fill.svg" alt="" width="24" height="24">
-                </button>
-                <button title="Selects current time as the talk thumbnail frame" type="button" class="talk-time-sample btn btn-default" aria-label="Sample end time">
-                  <img src="/static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
-                </button>
-                <br>
-              </div>
-              <div></div>
-              <div class="edit-status">
-                <strong><label>Edit status</label></strong>
-                {% set edit_titles = {"incomplete":"Tick me if the talk is cut off or incomplete", "done":"Tick me if the talk's start and end are found", "unusable":"Tick me if talk has no sound or other fatal issues"} %}
-                {% for status in edit_statuses %}
-                <div class="form-check" title="{{ edit_titles[status] }}">
-                  <input class="form-check-input" type="radio" name="edit-status-{{ talk.id }}" id="edit-{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.edit_status == status else ''}} autocomplete="off">
-                  <label class="form-check-label" for="edit-{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
-                </div>
-                {% endfor %}
-              </div>
-              <div class="review-status">
-                <strong><label>Review status</label></strong>
-                {% set review_titles = {"reviewing":"Tick me if the talk's cuts are still under inspection", "done":"Tick me if talk is ready to be uploaded", "unusable":"Tick me if talk has no sound or other fatal issues"} %}
-                {% for status in review_statuses %}
-                <div class="form-check" title="{{ review_titles[status] }}">
-                  <input class="form-check-input" type="radio" name="review-status-{{ talk.id }}" id="review-{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.review_status == status else ''}} autocomplete="off">
-                  <label class="form-check-label" for="review-{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
-                </div>
-                {% endfor %}
-              </div>
-              <div><em>Last edited by: <span class="last-edited-by">{{ talk.last_edited_by }}</span></em><br><br></div>
-            </div>
-            <strong><label for="notes-{{ talk.id }}">Notes</label></strong>
-            <textarea class="notes" name="notes-{{ talk.id }}" id="notes-{{ talk.id }}" maxlength=3000 placeholder="Record any extra helpful information or observations about the talk here.">{{ talk.notes|e }}</textarea>
-            <button class="notes-save btn btn-secondary mb-1">Save notes</button>
-          </div>
-        </div>
-        {% endfor %}
-
+      <div class="col-md-5 border-right overflow-auto p-2" id="left">
+        <div id="player" data-vid="{{ room_day.vid }}"></div>
+        <div id="no-vid" hidden>No video ID set for this room day yet. If you're an admin, set it from the index page. Otherwise, check back later.</div>
       </div>
-      <br><br><br><br><br>
-		</div>
+
+      <div class="col-md-7 overflow-auto p-2" id="right">
+        <h3>Talks</h3>
+        <br>
+        <div class="talks mb-2">
+
+          {% for talk in room_day.talks %}
+          <div class="talk" data-id="{{ talk.id }}">
+            <button title="Locate this talk in the video, mark its start and end times, and select corresponding edit status" class="btn talk-header">
+              <span class="talk-video-time"></span>
+              <span class="talk-title">{{ talk.title|safe }}</span>
+            </button>
+            <div class="talk-contents">
+              <a href="https://www.socallinuxexpo.org{{ talk.path }}">Talk page <img src="/static/icons/box-arrow-up-right.svg" alt="" width="14" height="14"></a><br>
+              <label>Scheduled time: {{ talk.sched_start }} to {{ talk.sched_end }}</label><br>
+              <div class="talk-controls">
+                <div class="talk-time talk-time-start border p-2">
+                  <label>Video start</label>
+                  <input type="text" class="talk-time-input form-control mb-1" placeholder="0:00:00" data-initial="{{ talk.start }}">
+                  <button title="Plays video from the inputted start time" type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
+                    <img src="/static/icons/play-fill.svg" alt="" width="24" height="24">
+                  </button>
+                  <button title="Selects current time as the talk start time" type="button" class="talk-time-sample btn btn-default" aria-label="Sample start time">
+                    <img src="/static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
+                  </button>
+                </div>
+                <div class="talk-time talk-time-end border p-2">
+                  <label>Video end</label>
+                  <input type="text" class="talk-time-input form-control mb-1" placeholder="0:00:00" data-initial="{{ talk.end }}">
+                  <button title="Plays video from the inputted end time" type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
+                    <img src="/static/icons/play-fill.svg" alt="" width="24" height="24">
+                  </button>
+                  <button title="Selects current time as the talk end time" type="button" class="talk-time-sample btn btn-default" aria-label="Sample end time">
+                    <img src="/static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
+                  </button>
+                  <br>
+                </div>
+                <div class="talk-time talk-time-thumbnail border p-2">
+                  <label>Video thumbnail</label>
+                  <input type="text" class="talk-time-input form-control mb-1" placeholder="0:00:00" data-initial="{{ talk.thumbnail }}">
+                  <button title="Plays video from the inputted thumbnail time" type="button" class="talk-time-seek btn btn-default" aria-label="Seek time">
+                    <img src="/static/icons/play-fill.svg" alt="" width="24" height="24">
+                  </button>
+                  <button title="Selects current time as the talk thumbnail frame" type="button" class="talk-time-sample btn btn-default" aria-label="Sample end time">
+                    <img src="/static/iconmonstr-eyedropper-1.svg" alt="" width="24" height="24">
+                  </button>
+                  <br>
+                </div>
+                <div></div>
+                <div class="edit-status p-2">
+                  <strong><label>Edit status</label></strong>
+                  {% set edit_titles = {"incomplete":"Tick me if the talk is cut off or incomplete", "done":"Tick me if the talk's start and end are found", "unusable":"Tick me if talk has no sound or other fatal issues"} %}
+                  {% for status in edit_statuses %}
+                  <div class="form-check" title="{{ edit_titles[status] }}">
+                    <input class="form-check-input" type="radio" name="edit-status-{{ talk.id }}" id="edit-{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.edit_status == status else ''}} autocomplete="off">
+                    <label class="form-check-label" for="edit-{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
+                  </div>
+                  {% endfor %}
+                </div>
+                <div class="review-status p-2">
+                  <strong><label>Review status</label></strong>
+                  {% set review_titles = {"reviewing":"Tick me if the talk's cuts are still under inspection", "done":"Tick me if talk is ready to be uploaded", "unusable":"Tick me if talk has no sound or other fatal issues"} %}
+                  {% for status in review_statuses %}
+                  <div class="form-check" title="{{ review_titles[status] }}">
+                    <input class="form-check-input" type="radio" name="review-status-{{ talk.id }}" id="review-{{ status }}-{{ talk.id }}" value="{{ status }}" {{ 'checked' if talk.review_status == status else ''}} autocomplete="off">
+                    <label class="form-check-label" for="review-{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
+                  </div>
+                  {% endfor %}
+                </div>
+                <div><em>Last edited by: <span class="last-edited-by">{{ talk.last_edited_by }}</span></em><br><br></div>
+              </div>
+              <strong><label for="notes-{{ talk.id }}">Notes</label></strong>
+              <textarea class="notes w-100" name="notes-{{ talk.id }}" id="notes-{{ talk.id }}" maxlength=3000 placeholder="Record any extra helpful information or observations about the talk here.">{{ talk.notes|e }}</textarea>
+              <button class="notes-save btn btn-primary mb-1">Save notes</button>
+            </div>
+          </div>
+          {% endfor %}
+
+        </div>
+        <br><br><br><br><br>
+      </div>
+
+    </div>
   </div>
 
   <script>
