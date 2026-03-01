@@ -10,6 +10,7 @@ class Config(object):
     ADMIN_KEY = os.environ['ADMIN_KEY']
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SIGNS_URL = os.environ.get('SIGNS_URL', '')
 
 class ProductionConfig(Config):
     DEBUG = False

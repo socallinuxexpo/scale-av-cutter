@@ -1,24 +1,5 @@
-body {
-  margin: 20px;
-}
-
-form {
-  padding: 10px;
-  max-width: 500px;
-  border: solid 1px #ccc;
-}
-
-#talks {
-  margin-bottom: 50px;
-}
-
-.roomday-no-vid {
-  font-weight: bold;
-  color: #e55;
-}
-
-.roomday-status {
-  font-weight: bold;
+.failed {
+  color: red;
 }
 
 .roomday-status-cut {
@@ -27,12 +8,4 @@ form {
 
 .roomday-status-review {
   color: #b206ca;
-}
-
-.roomday-status-done {
-  color: #5e5;
-}
-
-.roomday-comment-text {
-  font-style: italic;
 }

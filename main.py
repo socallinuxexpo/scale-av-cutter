@@ -89,7 +89,8 @@ def index():
                            name=name,
                            level=level,
                            fails=fails,
-                           room_days=room_days)
+                           room_days=room_days,
+                           signs_url=app.config.get('SIGNS_URL', ''))
 
 @app.route('/logout', methods=['POST'])
 def logout():

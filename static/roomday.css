@@ -1,43 +1,5 @@
-body {
-  margin-top: 0px;
-  margin-bottom: 0px;
-}
-
-.main {
-  height: 100vh;
-  display: grid;
-  grid-template-rows: 100vh;
-  grid-template-columns: minmax(min-content, min-content) auto;
-  margin-top: 0px;
-  margin-bottom: 0px;
-  overflow: hidden;
-}
-
-@media only screen and (max-width: 480px) {
-  .main {
-    grid-template-columns: auto;
-  }
-}
-
-.left {
-  height: 100vh;
-  overflow-y: auto;
-  padding: 10px;
-  border-right: 1px solid #ccc;
-}
-
-.left > * {
-  margin-bottom: 5px;
-}
-
-.right {
-  height: 100vh;
-  overflow-y: auto;
-  padding: 10px;
-}
-
-.talks {
-  margin-bottom: 10px;
+#left, #right {
+  height: calc(100vh - 56px); /* 56px = Bootstrap navbar height */
 }
 
 .talk {
@@ -71,40 +33,21 @@ body {
   grid-template-columns: auto auto;
 }
 
-.talk-time {
-  border: 1px solid #ccc;
-  padding: 10px;
-}
-
-.edit-status {
-  padding: 10px;
-}
-
-.review-status {
-  padding: 10px;
-}
-
 .talk-controls button {
   padding: 6px;
-  border-color: #ccc
+  border-color: #ccc;
 }
 
 .notes {
-  width: 100%;
   height: 5em;
   margin: 3px;
 }
 
 button.notes-save {
   transition: 0.4s;
-  background: #007bff;
 }
 button.notes-save:disabled {
   background: #545b62;
-}
-
-.home-btn {
-  vertical-align: top;
 }
 
 .header-incomplete {

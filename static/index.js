@@ -26,7 +26,32 @@ document.addEventListener("DOMContentLoaded", function()
     }
   }
 
-  
+  // Import schedule
+  const importScheduleForm = document.getElementById("loadsigns-form");
+  if (importScheduleForm != null) {
+    importScheduleForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const url = window.prompt("Enter the schedule URL to import:", importScheduleForm.dataset.signsUrl);
+      if (url != null && url.trim() !== "") {
+        const formData = new FormData();
+        formData.append("url", url);
+        fetch('/loadsigns', {
+          method: "POST",
+          body: formData,
+          credentials: "same-origin",
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.error != null) {
+              window.alert("ERROR: " + data.error);
+            } else {
+              window.location.reload();
+            }
+          });
+      }
+    });
+  }
+
   // Room day stuff
   const roomdays = document.querySelectorAll(".roomday");
   for (const roomday of roomdays) {
