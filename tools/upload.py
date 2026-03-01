@@ -43,6 +43,7 @@ def collect_talks(room_days, workdir):
     for room_day in room_days["room_days"]:
         room = room_day["room"]
         day = room_day["day"]
+        date = room_day["date"]
 
         room_day_name = f"{rdash(room)}-{rdash(day)}"
         subdir_path = os.path.join(workdir, room_day_name)
@@ -65,6 +66,7 @@ def collect_talks(room_days, workdir):
                 "description": youtube_desc,
                 "file": talk_path,
                 "thumbnail": thumbnail_path,
+                "date": date,
             })
 
     return talks
@@ -121,17 +123,24 @@ def main():
         size = os.path.getsize(talk["file"])
         print(f"Uploading \"{talk['title']}\" ({size} bytes)...")
         video = MediaFileUpload(talk['file'], chunksize=1024*1024, resumable=True)
+        date = talk['date']
         request = yt.videos().insert(
-            part="id,snippet,status",
+            part="id,snippet,status,recordingDetails",
             body={
                 "snippet": {
                     "title": talk["title"],
                     "description": talk["description"],
+                    "defaultLanguage": "en",
+                    "defaultAudioLanguage": "en",
                 },
                 "status": {
                     "privacyStatus": args.privacy,
                     "selfDeclaredMadeForKids": False,
+                    "license": "creativeCommon",
                 },
+                "recordingDetails": {
+                    "recordingDate": date + "T00:00:00Z",
+                }
             },
             media_body=video)
         response = None
