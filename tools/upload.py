@@ -15,19 +15,18 @@ def rdash(s):
     s = unidecode(s)
     return re.sub('[^0-9a-zA-Z]+', '-', s)
 
+def sanitize_angle_brackets(s):
+    return s.replace("<", "[").replace(">", "]")
+
 def validate_youtube_title(title):
     # https://developers.google.com/youtube/terms/required-minimum-functionality#data-requirements
     if len(title) > 100:
         raise Exception(f"Title '{title}' is longer than 100 characters. Modify JSON to include a valid youtube_title field.")
-    if "<" in title or ">" in title:
-        raise Exception(f"Title '{title}' contains an invalid character. Modify JSON to include a valid youtube_title field.")
 
 def validate_youtube_description(desc):
     # https://developers.google.com/youtube/terms/required-minimum-functionality#data-requirements
     if len(desc.encode('utf-8')) > 5000:
         raise Exception(f"Description '{desc}' is longer than 5000 bytes. Modify JSON to include a valid youtube_description field.")
-    if "<" in desc or ">" in desc:
-        raise Exception(f"Description '{desc}' contains an invalid character. Modify JSON to include a valid youtube_description field.")
 
 def make_video_description(talk, desc):
     link = "https://www.socallinuxexpo.org" + talk["path"]
@@ -56,8 +55,8 @@ def collect_talks(room_days, workdir):
             thumbnail_path = os.path.join(subdir_path, thumbnail_name)
             if not os.path.isfile(talk_path):
                 talk_path = None
-            youtube_title = talk.get("youtube_title", talk["title"])
-            youtube_desc = make_video_description(talk, talk.get("youtube_description", talk["description"]))
+            youtube_title = sanitize_angle_brackets(talk.get("youtube_title", talk["title"]))
+            youtube_desc = sanitize_angle_brackets(make_video_description(talk, talk.get("youtube_description", talk["description"])))
             validate_youtube_title(youtube_title)
             validate_youtube_description(youtube_desc)
             talks.append({
