@@ -464,6 +464,80 @@ def clear_vids():
 
     return {}
 
+@app.route('/talks')
+def talks_list():
+    _, level = access(require_name=False)
+    if level < 3:
+        abort(403)
+    talks = db.session.query(Talk).order_by(Talk.id).all()
+    return render_template('talks_list.html', talks=talks)
+
+@app.route('/talks/<int:talk_id>')
+def talk_show(talk_id):
+    _, level = access(require_name=False)
+    if level < 3:
+        abort(403)
+    talk = db.session.query(Talk).get(talk_id)
+    if not talk:
+        abort(404)
+    room_day = db.session.query(RoomDay).get(talk.room_day_id)
+    return render_template('talk_show.html', talk=talk, room_day=room_day, level=level)
+
+@app.route('/talks/<int:talk_id>', methods=['DELETE'])
+@catch_error
+@commit_db
+def talk_delete(talk_id):
+    _, level = access(require_name=False)
+    if level < 3:
+        access_error()
+    talk = db.session.query(Talk).get(talk_id)
+    if not talk:
+        input_error()
+    db.session.delete(talk)
+    return {}
+
+@app.route('/talks/<int:talk_id>/edit')
+def talk_edit(talk_id):
+    _, level = access(require_name=False)
+    if level < 3:
+        abort(403)
+    talk = db.session.query(Talk).get(talk_id)
+    if not talk:
+        abort(404)
+    return render_template('talk_edit.html', talk=talk,
+                           edit_statuses=EditStatus.values(),
+                           review_statuses=ReviewStatus.values())
+
+@app.route('/talks/<int:talk_id>', methods=['PATCH'])
+@catch_error
+@commit_db
+def talk_update(talk_id):
+    _, level = access(require_name=False)
+    if level < 3:
+        access_error()
+    talk = db.session.query(Talk).get(talk_id)
+    if not talk:
+        input_error()
+
+    data = request.get_json(force=True)
+
+    str_fields = ['title', 'speakers', 'description', 'path', 'sched_start', 'sched_end', 'notes']
+    for field in str_fields:
+        if field in data:
+            setattr(talk, field, data[field])
+
+    if 'edit_status' in data:
+        if data['edit_status'] not in EditStatus.values():
+            input_error()
+        talk.edit_status = data['edit_status']
+
+    if 'review_status' in data:
+        if data['review_status'] not in ReviewStatus.values():
+            input_error()
+        talk.review_status = data['review_status']
+
+    return {}
+
 @app.errorhandler(403)
 def forbidden(e):
     return (render_template('403.html'), 403)

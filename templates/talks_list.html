@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SCALE AV Cutter - Talks</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link rel="icon" href="data:,">
+</head>
+<body class="bg-light">
+
+  <nav class="navbar navbar-dark bg-dark">
+    <a class="btn btn-sm btn-outline-light mr-2" href="/">Home</a>
+    <span class="navbar-brand mb-0">Talks</span>
+  </nav>
+
+  <div class="container mt-3">
+    <table class="table table-sm table-hover bg-white">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th></th>
+          <th>Title</th>
+          <th>Speakers</th>
+          <th>Edit Status</th>
+          <th>Review Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for talk in talks %}
+        <tr>
+          <td>{{ talk.id }}</td>
+          <td>{% if talk.title|length > 99 %} ⚠️{% endif %}</td>
+          <td><a href="/talks/{{ talk.id }}">{{ talk.title|e }}</a></td>
+          <td>{{ talk.speakers|e }}</td>
+          <td>{{ talk.edit_status }}</td>
+          <td>{{ talk.review_status }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</body>
+</html>

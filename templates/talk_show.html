@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SCALE AV Cutter - Talk #{{ talk.id }}</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link rel="icon" href="data:,">
+</head>
+<body class="bg-light">
+
+  <nav class="navbar navbar-dark bg-dark">
+    <a class="btn btn-sm btn-outline-light mr-2" href="/talks">Talks</a>
+    <span class="navbar-brand mb-0">Talk #{{ talk.id }}</span>
+  </nav>
+
+  <div class="container mt-3">
+    <a class="btn btn-sm btn-secondary mb-3" href="/talks/{{ talk.id }}/edit">Edit</a>
+    {% if level >= 3 %}
+    <button class="btn btn-sm btn-danger mb-3" id="delete-btn">Delete</button>
+    {% endif %}
+
+    <table class="table table-sm bg-white">
+      <tbody>
+        <tr><th>ID</th><td>{{ talk.id }}</td></tr>
+        <tr><th>Room</th><td>{{ room_day.room|e }}</td></tr>
+        <tr><th>Day</th><td>{{ room_day.day|e }}</td></tr>
+        <tr><th>Title</th><td>{{ talk.title|e }}</td></tr>
+        <tr><th>Speakers</th><td>{{ talk.speakers|e }}</td></tr>
+        <tr><th>Description</th><td><pre class="mb-0">{{ talk.description|e }}</pre></td></tr>
+        <tr><th>Path</th><td>{{ talk.path|e }}</td></tr>
+        <tr><th>Scheduled start</th><td>{{ talk.sched_start }}</td></tr>
+        <tr><th>Scheduled end</th><td>{{ talk.sched_end }}</td></tr>
+        <tr><th>Video start</th><td>{{ talk.start }}</td></tr>
+        <tr><th>Video end</th><td>{{ talk.end }}</td></tr>
+        <tr><th>Thumbnail</th><td>{{ talk.thumbnail }}</td></tr>
+        <tr><th>Edit status</th><td>{{ talk.edit_status }}</td></tr>
+        <tr><th>Review status</th><td>{{ talk.review_status }}</td></tr>
+        <tr><th>Last edited by</th><td>{{ talk.last_edited_by|e }}</td></tr>
+        <tr><th>Notes</th><td><pre class="mb-0">{{ talk.notes|e }}</pre></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    const deleteBtn = document.getElementById('delete-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', () => {
+        if (!window.confirm('Delete talk #{{ talk.id }}? This cannot be undone.')) return;
+        fetch('/talks/{{ talk.id }}', {
+          method: 'DELETE',
+          credentials: 'same-origin',
+        })
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.error) {
+              window.alert('ERROR: ' + data.error);
+            } else {
+              window.location.href = '/talks';
+            }
+          });
+      });
+    }
+  </script>
+</body>
+</html>
