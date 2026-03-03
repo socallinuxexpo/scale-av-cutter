@@ -53,8 +53,13 @@
     <p>Job Description: After the editor marks the start and stop times for each talk, check over the specified times and correct any mistakes.</p>
     {% endif %}
 
+    {% if level >= 2 %}
+    <h3>Editor Tools</h3>
+    <a class="btn btn-sm btn-secondary" href="/streams">Live Streams</a>
+    {% endif %}
+
     {% if level >= 3 %}
-    <h3>Admin Actions</h3>
+    <h3 class="mt-3">Admin Actions</h3>
     <form action="/loadsigns" method="post" id="loadsigns-form" data-signs-url="{{ signs_url|e }}">
       <input type="hidden" name="url" id="loadsigns-url">
       <button class="btn btn-sm btn-secondary" type="submit" id="import-schedule">Import Schedule</button>

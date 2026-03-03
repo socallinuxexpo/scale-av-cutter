@@ -11,6 +11,8 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SIGNS_URL = os.environ.get('SIGNS_URL', '')
+    YOUTUBE_API_KEY = os.environ.get('YOUTUBE_API_KEY', '')
+    YOUTUBE_CHANNEL_ID = os.environ.get('YOUTUBE_CHANNEL_ID', '')
 
 class ProductionConfig(Config):
     DEBUG = False

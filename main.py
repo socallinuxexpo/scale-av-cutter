@@ -464,6 +464,45 @@ def clear_vids():
 
     return {}
 
+@app.route('/streams')
+@catch_error
+def streams():
+    _, level = access(require_name=False)
+    if level < 2:
+        access_error()
+
+    api_key = app.config.get('YOUTUBE_API_KEY')
+    channel_id = app.config.get('YOUTUBE_CHANNEL_ID')
+    if not api_key or not channel_id:
+        error('YOUTUBE_API_KEY and YOUTUBE_CHANNEL_ID must be configured')
+
+    yt = build('youtube', 'v3', developerKey=api_key)
+    res = yt.search().list(
+        part='snippet',
+        channelId=channel_id,
+        eventType='live',
+        type='video',
+        maxResults=50,
+    ).execute()
+
+    streams_list = [
+        {
+            'video_id': item['id']['videoId'],
+            'title': item['snippet']['title'],
+            'description': item['snippet']['description'],
+            'channel_title': item['snippet']['channelTitle'],
+            'published_at': item['snippet']['publishedAt'],
+            'thumbnail': item['snippet']['thumbnails'].get('default', {}).get('url', ''),
+        }
+        for item in res.get('items', [])
+    ]
+
+    empty_room_days = room_days_query().filter(RoomDay.vid == '').all()
+
+    return render_template('streams.html',
+                           streams=streams_list,
+                           room_days=empty_room_days)
+
 @app.route('/talks')
 def talks_list():
     _, level = access(require_name=False)
