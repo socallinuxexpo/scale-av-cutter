@@ -26,6 +26,7 @@ def parse_signjson(data):
             "title": unescape(item["Name"]),
             "speakers": unescape(item.get("Speakers") or ""),
             "description": unescape(item.get("Description") or ""),
+            "topic": unescape(item.get("Topic") or ""),
         }
         talks.append(talk)
 
@@ -49,6 +50,9 @@ def import_talks(talks, force_add):
             )
             db.session.add(room_day)
             db.session.flush()
+
+        if not room_day.topic and talk['topic']:
+            room_day.topic = talk['topic']
 
         # Create talk data
         talk_data = Talk(

@@ -10,6 +10,38 @@
 <body class="bg-light">
 
   {% set access_names = {1:"Editor", 2:"Reviewer", 3:"Admin"} %}
+  {% set topic_colors = {
+    'Keynote':                  ['#f9a825', '#fff'],
+    'Security':                 ['#b25562', '#fff'],
+    'Observability':            ['#e35d34', '#fff'],
+    'PostgreSQL':               ['#5d47ff', '#fff'],
+    'Developer':                ['#1e88e5', '#fff'],
+    'DevOpsDay LA':             ['#fba786', '#fff'],
+    'General':                  ['#a87e83', '#fff'],
+    'Applied Science':          ['#fff176', '#fff'],
+    'Open Source AI':           ['#82d9d9', '#fff'],
+    'Cloud Native':             ['#6e79b0', '#fff'],
+    'Embedded Linux':           ['#c4c4c4', '#fff'],
+    'Systems & Infrastructure': ['#4f5c6a', '#fff'],
+    'MySQL':                    ['#62a486', '#fff'],
+    'Next Generation':          ['#00695c', '#fff'],
+    'Career Day':               ['#00897b', '#fff'],
+    'FOSS @ HOME':              ['#43a047', '#fff'],
+    'Open Government':          ['#6393b9', '#fff'],
+    'Workshops':                ['#44bb8d', '#fff'],
+    'Higher Education':         ['#a1887f', '#fff'],
+    'Kernel & Low Level Systems':['#a79246', '#fff'],
+    'SunSecCon':                ['#ad1457', '#fff'],
+    'AstriCon':                 ['#00acc1', '#fff'],
+    'Sponsored':                ['#00838f', '#fff'],
+    'Entertainment':            ['#de4fc3', '#fff'],
+    'Kwaai Summit':             ['#af3c6e', '#fff'],
+    'Fedora Hatch Day':         ['#da0707', '#fff'],
+    'PlanetNix':                ['#bfbddc', '#fff'],
+    'LibreGraphics':            ['#283593', '#fff'],
+    'UpSCALE':                  ['#000000', '#fff'],
+    'BoFs':                     ['#000000', '#fff'],
+  } %}
   <nav class="navbar navbar-dark bg-dark">
     <span class="navbar-brand">SCALE AV Cutter</span>
     {% if level > 0 %}
@@ -79,6 +111,10 @@
         </button>
         {% endif %}
         <a href="/{{ room_day.day }}/{{ room_day.room }}" class="roomday-description">{{ room_day.day }}, {{ room_day.room }}</a>
+        {% if room_day.topic %}
+        {% set tc = topic_colors.get(room_day.topic, ['#6c757d', '#fff']) %}
+        <span class="badge badge-pill" style="background-color:{{ tc[0] }};color:{{ tc[1] }};">{{ room_day.topic|e }}</span>
+        {% endif %}
         <span> - </span>
         <span class="roomday-no-vid font-weight-bold text-danger" {{ 'hidden' if room_day.vid }}>(NO VID)</span>
         <span class="roomday-status font-weight-bold" {{ 'hidden' if not room_day.vid }}>

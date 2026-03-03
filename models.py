@@ -24,6 +24,7 @@ class RoomDay(db.Model):
     date        = db.Column(db.Date, nullable=False)
     vid         = db.Column(db.Text, nullable=False)
     comment     = db.Column(db.Text, nullable=False, default="")
+    topic       = db.Column(db.Text, nullable=False, default="")
 
     checked_out_by = db.Column(db.Text, nullable=False, default="")
 
