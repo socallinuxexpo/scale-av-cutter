@@ -3,6 +3,7 @@ from models import RoomDay, Talk
 
 import iso8601
 import json
+from html import unescape
 
 
 def parse_signjson(data):
@@ -22,9 +23,9 @@ def parse_signjson(data):
             "start": start_time,
             "end": end_time,
             "thumbnail": 0,
-            "title": item["Name"],
-            "speakers": item.get("Speakers") or "",
-            "description": item.get("Description") or "",
+            "title": unescape(item["Name"]),
+            "speakers": unescape(item.get("Speakers") or ""),
+            "description": unescape(item.get("Description") or ""),
         }
         talks.append(talk)
 
@@ -32,6 +33,7 @@ def parse_signjson(data):
 
 
 def import_talks(talks, force_add):
+    count = 0
     for talk in talks:
         # See if the RoomDay exists
         room_day = db.session.query(RoomDay)\
@@ -65,6 +67,7 @@ def import_talks(talks, force_add):
                        .first()
         if not existing or force_add:
             db.session.add(talk_data)
+            count += 1
         else:
             # If talk already exists, update its fields
             existing.room_day_id = talk_data.room_day_id
@@ -72,3 +75,4 @@ def import_talks(talks, force_add):
             existing.sched_end = talk_data.sched_end
             existing.title = talk_data.title
             existing.description = talk_data.description
+    return count

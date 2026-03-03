@@ -209,8 +209,8 @@ def xml():
     talks = parse_signjson(data)
 
     # Import
-    import_talks(talks, force_add)
-    return {}
+    count = import_talks(talks, force_add)
+    return {'imported': count}
 
 @app.route('/json')
 @catch_error

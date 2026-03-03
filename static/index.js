@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", function()
             if (data.error != null) {
               window.alert("ERROR: " + data.error);
             } else {
+              window.alert(data.imported + " talks imported.");
               window.location.reload();
             }
           });
