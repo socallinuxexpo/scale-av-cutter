@@ -29,7 +29,7 @@
         {% for talk in talks %}
         <tr>
           <td>{{ talk.id }}</td>
-          <td>{% if talk.title|length > 99 %} ⚠️{% endif %}</td>
+          <td>{% if talk.title|length > 99 %} ⚠️ Title Length{% endif %}</td>
           <td><a href="/talks/{{ talk.id }}">{{ talk.title|e }}</a></td>
           <td>{{ talk.speakers|e }}</td>
           <td>{{ talk.edit_status }}</td>
