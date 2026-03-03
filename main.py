@@ -72,7 +72,11 @@ def index():
         for room_day in room_days:
             needs_cut = False
             needs_review = False
+            room_done = True
             for talk in room_day.talks:
+                if talk.video_status not in (VideoStatus.dont_publish, VideoStatus.published):
+                    room_done = False
+                
                 if talk.review_status == ReviewStatus.reviewing:
                     # In edit incomplete state, needs a cut
                     if talk.edit_status == EditStatus.incomplete:
@@ -80,9 +84,10 @@ def index():
                     # Else, needs a review
                     else:
                         needs_review = True
+
             room_day.needs_cut = needs_cut
             room_day.needs_review = needs_review
-            room_day.done = not needs_cut and not needs_review
+            room_day.done = room_done
 
     # Render
     return render_template("index.html",
@@ -141,7 +146,8 @@ def roomday(day, room):
                            level=level,
                            room_day=room_day,
                            edit_statuses=[EditStatus.incomplete, EditStatus.done, EditStatus.unusable],
-                           review_statuses=[ReviewStatus.reviewing, ReviewStatus.done, ReviewStatus.unusable])
+                           review_statuses=[ReviewStatus.reviewing, ReviewStatus.done, ReviewStatus.unusable],
+                           video_statuses=[VideoStatus.no_video, VideoStatus.need_to_split, VideoStatus.needs_review, VideoStatus.dont_publish, VideoStatus.published])
 
 @app.route('/vid', methods=['POST'])
 @catch_error
@@ -396,6 +402,33 @@ def review():
     talk.review_status = status
     return {}
 
+@app.route('/video_status', methods=['POST'])
+@catch_error
+@commit_db
+def video_status():
+    # Check for access level
+    _, level = access()
+    if level < 1:
+        access_error()
+
+    # Fetch/validate parameters
+    talk_id_str = expect(request, 'id')
+    status = expect(request, 'status')
+    try:
+        talk_id = int(talk_id_str)
+        assert status in VideoStatus.values()
+    except:
+        input_error()
+
+    # Get Talk
+    talk = db.session.query(Talk).get(talk_id)
+    if not talk:
+        input_error()
+
+    # Update
+    talk.video_status = status
+    return {}
+
 @app.route('/auto_vids', methods=['POST'])
 @catch_error
 @commit_db
@@ -545,7 +578,8 @@ def talk_edit(talk_id):
         abort(404)
     return render_template('talk_edit.html', talk=talk,
                            edit_statuses=EditStatus.values(),
-                           review_statuses=ReviewStatus.values())
+                           review_statuses=ReviewStatus.values(),
+                           video_statuses=[VideoStatus.no_video, VideoStatus.need_to_split, VideoStatus.needs_review, VideoStatus.dont_publish, VideoStatus.published])
 
 @app.route('/talks/<int:talk_id>', methods=['PATCH'])
 @catch_error
@@ -574,6 +608,11 @@ def talk_update(talk_id):
         if data['review_status'] not in ReviewStatus.values():
             input_error()
         talk.review_status = data['review_status']
+
+    if 'video_status' in data:
+        if data['video_status'] not in VideoStatus.values():
+            input_error()
+        talk.video_status = data['video_status']
 
     return {}
 

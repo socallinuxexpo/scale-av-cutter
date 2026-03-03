@@ -5,7 +5,7 @@ class StringEnum:
     @classmethod
     def values(cls):
         attrs = cls.__dict__.keys()
-        return set(attr for attr in attrs if not attr.startswith("__") and attr != "values")
+        return set(getattr(cls, attr) for attr in attrs if not attr.startswith("__") and attr != "values")
 
 class EditStatus(StringEnum):
     incomplete = 'incomplete'
@@ -16,6 +16,13 @@ class ReviewStatus(StringEnum):
     reviewing = 'reviewing'
     done = 'done'
     unusable = 'unusable'
+
+class VideoStatus(StringEnum):
+    no_video        = 'No video'
+    need_to_split   = 'Need to split'
+    needs_review    = 'Needs review'
+    dont_publish    = "Done (Don't publish)"
+    published       = 'Done (published)'
 
 class RoomDay(db.Model):
     id          = db.Column(db.Integer, primary_key=True)
@@ -48,6 +55,7 @@ class Talk(db.Model):
 
     review_status   = db.Column(db.VARCHAR, default=ReviewStatus.reviewing, nullable=False)
     edit_status     = db.Column(db.VARCHAR, default=EditStatus.incomplete, nullable=False)
+    video_status    = db.Column(db.VARCHAR, default=VideoStatus.no_video, nullable=False)
 
     last_edited_by = db.Column(db.Text, nullable=False, default="")
 

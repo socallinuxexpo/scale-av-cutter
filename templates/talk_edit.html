@@ -57,6 +57,14 @@
         </select>
       </div>
       <div class="form-group">
+        <label>Video status</label>
+        <select class="form-control" name="video_status">
+          {% for status in video_statuses %}
+          <option value="{{ status }}" {{ 'selected' if talk.video_status == status }}>{{ status }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
         <label>Notes</label>
         <textarea class="form-control" name="notes" rows="3">{{ talk.notes|e }}</textarea>
       </div>

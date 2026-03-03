@@ -91,6 +91,14 @@
                   </div>
                   {% endfor %}
                 </div>
+                <div class="video-status p-2">
+                  <strong><label for="video-status-{{ talk.id }}">Video status</label></strong>
+                  <select class="form-control form-control-sm video-status-select" id="video-status-{{ talk.id }}" data-talk-id="{{ talk.id }}">
+                    {% for status in video_statuses %}
+                    <option value="{{ status }}" {{ 'selected' if talk.video_status == status }}>{{ status }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
                 <div><em>Last edited by: <span class="last-edited-by">{{ talk.last_edited_by }}</span></em><br><br></div>
               </div>
               <strong><label for="notes-{{ talk.id }}">Notes</label></strong>
