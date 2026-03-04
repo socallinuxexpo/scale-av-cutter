@@ -109,7 +109,7 @@
           <th>Topic</th>
           <th>Status</th>
           <th>Done</th>
-          <th>Comment</th>
+          <th class="roomday-comment-col">Comment</th>
         </tr>
       </thead>
       <tbody>
@@ -136,14 +136,18 @@
             </span>
           </td>
           <td>{{ room_day.talks_done }}/{{ room_day.talks_total }}</td>
-          <td>
+          <td class="roomday-comment-col">
             <span class="roomday-comment" {{ 'hidden' if not room_day.comment }}>
               <span class="roomday-comment-text font-italic">{{ room_day.comment|e }}</span>
             </span>
             {% if level >= 3 %}
-            <button title="Add a comment for the room" type="button" class="roomday-comment-button btn btn-sm btn-outline-secondary">
-              <img src="/static/icons/info.svg" alt="" width="16" height="16">Edit
-            </button>
+            <br>
+            <button title="Edit comment for this room" type="button" class="roomday-comment-button btn btn-sm btn-outline-secondary">Edit</button>
+            <div class="roomday-comment-edit" hidden>
+              <textarea class="form-control form-control-sm roomday-comment-input" rows="2" maxlength="1000">{{ room_day.comment|e }}</textarea>
+              <button type="button" class="roomday-comment-save btn btn-sm btn-primary mt-1">Save</button>
+              <button type="button" class="roomday-comment-cancel btn btn-sm btn-secondary mt-1">Cancel</button>
+            </div>
             {% endif %}
           </td>
         </tr>

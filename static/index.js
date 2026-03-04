@@ -94,13 +94,40 @@ document.addEventListener("DOMContentLoaded", function()
     }
 
     const commentButton = roomday.querySelector(".roomday-comment-button");
-    const commentText = roomday.querySelector(".roomday-comment-text");
     if (commentButton != null) {
+      const commentEdit = roomday.querySelector(".roomday-comment-edit");
+      const commentInput = roomday.querySelector(".roomday-comment-input");
+      const commentSave = roomday.querySelector(".roomday-comment-save");
+      const commentCancel = roomday.querySelector(".roomday-comment-cancel");
+
+      const commentSpan = roomday.querySelector(".roomday-comment");
+
+      roomday.cancelCommentEdit = () => {
+        commentEdit.hidden = true;
+        commentSpan.hidden = (commentInput.value == "");
+        commentInput.value = roomday.querySelector(".roomday-comment-text").textContent;
+        commentButton.hidden = false;
+      };
+
       commentButton.addEventListener("click", () => {
-        const comment = window.prompt("Enter a comment for " + description, commentText.textContent);
-        if (comment != null) {
-          sendComment(roomday, comment);
+        for (const other of roomdays) {
+          if (other !== roomday && other.cancelCommentEdit) other.cancelCommentEdit();
         }
+        commentButton.hidden = true;
+        commentSpan.hidden = true;
+        commentEdit.hidden = false;
+        commentInput.focus();
+      });
+
+      commentCancel.addEventListener("click", () => {
+        roomday.cancelCommentEdit();
+      });
+
+      commentSave.addEventListener("click", () => {
+        sendComment(roomday, commentInput.value, () => {
+          commentEdit.hidden = true;
+          commentButton.hidden = false;
+        });
       });
     }
   }
@@ -137,7 +164,7 @@ function sendVid(roomday, vid) {
     });
 }
 
-function sendComment(roomday, comment) {
+function sendComment(roomday, comment, onSuccess) {
   const roomday_id = roomday.dataset.id;
 
   const formData = new FormData();
@@ -149,15 +176,14 @@ function sendComment(roomday, comment) {
     body: formData,
     credentials: "same-origin",
   })
-    .then((response) => {
-      return response.json();
-    })
+    .then((response) => response.json())
     .then((data) => {
       if (data.error != null) {
         window.alert("ERROR: " + data.error);
       } else {
         roomday.querySelector(".roomday-comment").hidden = (comment == "");
         roomday.querySelector(".roomday-comment-text").textContent = comment;
+        if (onSuccess) onSuccess();
       }
     });
 }

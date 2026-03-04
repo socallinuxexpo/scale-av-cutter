@@ -1,3 +1,9 @@
+.roomday-comment-col {
+  width: 300px;
+  min-width: 300px;
+  max-width: 300px;
+}
+
 .failed {
   color: red;
 }
