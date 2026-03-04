@@ -73,10 +73,13 @@ def index():
             needs_cut = False
             needs_review = False
             room_done = True
+            talks_done = 0
             for talk in room_day.talks:
                 if talk.video_status not in (VideoStatus.dont_publish, VideoStatus.published):
                     room_done = False
-                
+                else:
+                    talks_done += 1
+
                 if talk.review_status == ReviewStatus.reviewing:
                     # In edit incomplete state, needs a cut
                     if talk.edit_status == EditStatus.incomplete:
@@ -88,6 +91,8 @@ def index():
             room_day.needs_cut = needs_cut
             room_day.needs_review = needs_review
             room_day.done = room_done
+            room_day.talks_done = talks_done
+            room_day.talks_total = len(room_day.talks)
 
     # Render
     return render_template("index.html",
