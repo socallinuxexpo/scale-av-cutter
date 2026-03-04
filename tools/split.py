@@ -77,6 +77,9 @@ interrupted in the middle of downloading. yt-dlp is able to skip downloaded
 videos, as well as resume a partial download. However, note that all talks will
 be re-cut via ffmpeg. This should be extremely fast, since the streams are only
 copied.
+
+Room days whose subdirectory already exists in workdir are skipped entirely.
+Delete a room day's subdirectory to force it to be re-processed.
 """)
 
     parser.add_argument("json", help="Path to json file of cut details")
@@ -110,8 +113,13 @@ def main():
         video_name = f"{room_day_name}.{vformat}"
         video_path = os.path.join(subdir_path, video_name)
 
+        # Skip if already processed
+        if os.path.isdir(subdir_path):
+            print(f"Skipping {room} {day}: {subdir_path} already exists.")
+            continue
+
         # Make subdirectory
-        os.makedirs(subdir_path, exist_ok=True)
+        os.makedirs(subdir_path)
 
         # Attempt to download video
         if not download_video(vid, outfile=video_path, container_format=vformat):
