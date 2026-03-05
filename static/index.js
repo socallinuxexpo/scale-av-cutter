@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", function()
     importScheduleForm.addEventListener("submit", (e) => {
       e.preventDefault();
       const url = window.prompt("Enter the schedule URL to import:", importScheduleForm.dataset.signsUrl);
-      if (url != null && url.trim() !== "") {
+      if (url != null && url.trim() !== "" && window.confirm(`Are you sure you want to import talks from:\n${url.trim()}`)) {
         const formData = new FormData();
         formData.append("url", url);
         fetch('/loadsigns', {
