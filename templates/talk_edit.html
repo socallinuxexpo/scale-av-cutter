@@ -17,8 +17,8 @@
     <p class="text-danger d-none" id="error-msg"></p>
     <form id="edit-form">
       <div class="form-group">
-        <label>Title</label>
-        <input type="text" class="form-control" name="title" value="{{ talk.title|e }}">
+        <label>Title <small class="text-muted" id="title-count"></small></label>
+        <input type="text" class="form-control" name="title" id="title-input" value="{{ talk.title|e }}">
       </div>
       <div class="form-group">
         <label>Speakers</label>
@@ -72,6 +72,20 @@
       <a class="btn btn-secondary ml-1" href="/talks/{{ talk.id }}">Cancel</a>
     </form>
   </div>
+
+  <script>
+    const titleInput = document.getElementById('title-input');
+    const titleCount = document.getElementById('title-count');
+    const TITLE_MAX = 100;
+    function updateTitleCount() {
+      const n = titleInput.value.length;
+      titleCount.textContent = `${n}/${TITLE_MAX}`;
+      titleCount.classList.toggle('text-danger', n > TITLE_MAX);
+      titleCount.classList.toggle('text-muted', n <= TITLE_MAX);
+    }
+    titleInput.addEventListener('input', updateTitleCount);
+    updateTitleCount();
+  </script>
 
   <script>
     document.getElementById('edit-form').addEventListener('submit', function(e) {
