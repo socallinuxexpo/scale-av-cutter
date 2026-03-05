@@ -515,13 +515,16 @@ def streams():
         error('YOUTUBE_API_KEY and YOUTUBE_CHANNEL_ID must be configured')
 
     yt = build('youtube', 'v3', developerKey=api_key)
-    res = yt.search().list(
-        part='snippet',
-        channelId=channel_id,
-        eventType='live',
-        type='video',
-        maxResults=50,
-    ).execute()
+    items = []
+    for event_type in ('live', 'upcoming'):
+        res = yt.search().list(
+            part='snippet',
+            channelId=channel_id,
+            eventType=event_type,
+            type='video',
+            maxResults=99,
+        ).execute()
+        items.extend(res.get('items', []))
 
     streams_list = [
         {
@@ -532,7 +535,7 @@ def streams():
             'published_at': item['snippet']['publishedAt'],
             'thumbnail': item['snippet']['thumbnails'].get('default', {}).get('url', ''),
         }
-        for item in res.get('items', [])
+        for item in items
     ]
 
     empty_room_days = room_days_query().filter(RoomDay.vid == '').all()
