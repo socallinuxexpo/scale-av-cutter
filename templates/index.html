@@ -10,6 +10,38 @@
 <body class="bg-light">
 
   {% set access_names = {1:"Editor", 2:"Reviewer", 3:"Admin"} %}
+  {% set topic_colors = {
+    'Keynote':                  ['#f9a825', '#fff'],
+    'Security':                 ['#b25562', '#fff'],
+    'Observability':            ['#e35d34', '#fff'],
+    'PostgreSQL':               ['#5d47ff', '#fff'],
+    'Developer':                ['#1e88e5', '#fff'],
+    'DevOpsDay LA':             ['#fba786', '#fff'],
+    'General':                  ['#a87e83', '#fff'],
+    'Applied Science':          ['#fff176', '#fff'],
+    'Open Source AI':           ['#82d9d9', '#fff'],
+    'Cloud Native':             ['#6e79b0', '#fff'],
+    'Embedded Linux':           ['#c4c4c4', '#fff'],
+    'Systems & Infrastructure': ['#4f5c6a', '#fff'],
+    'MySQL':                    ['#62a486', '#fff'],
+    'Next Generation':          ['#00695c', '#fff'],
+    'Career Day':               ['#00897b', '#fff'],
+    'FOSS @ HOME':              ['#43a047', '#fff'],
+    'Open Government':          ['#6393b9', '#fff'],
+    'Workshops':                ['#44bb8d', '#fff'],
+    'Higher Education':         ['#a1887f', '#fff'],
+    'Kernel & Low Level Systems':['#a79246', '#fff'],
+    'SunSecCon':                ['#ad1457', '#fff'],
+    'AstriCon':                 ['#00acc1', '#fff'],
+    'Sponsored':                ['#00838f', '#fff'],
+    'Entertainment':            ['#de4fc3', '#fff'],
+    'Kwaai Summit':             ['#af3c6e', '#fff'],
+    'Fedora Hatch Day':         ['#da0707', '#fff'],
+    'PlanetNix':                ['#bfbddc', '#fff'],
+    'LibreGraphics':            ['#283593', '#fff'],
+    'UpSCALE':                  ['#000000', '#fff'],
+    'BoFs':                     ['#000000', '#fff'],
+  } %}
   <nav class="navbar navbar-dark bg-dark">
     <span class="navbar-brand">SCALE AV Cutter</span>
     {% if level > 0 %}
@@ -53,40 +85,75 @@
     <p>Job Description: After the editor marks the start and stop times for each talk, check over the specified times and correct any mistakes.</p>
     {% endif %}
 
+    {% if level >= 2 %}
+    <h3>Editor Tools</h3>
+    <a class="btn btn-sm btn-secondary" href="/streams">Live Streams</a>
+    {% endif %}
+
     {% if level >= 3 %}
-    <h3>Admin Actions</h3>
+    <h3 class="mt-3">Admin Actions</h3>
     <form action="/loadsigns" method="post" id="loadsigns-form" data-signs-url="{{ signs_url|e }}">
       <input type="hidden" name="url" id="loadsigns-url">
       <button class="btn btn-sm btn-secondary" type="submit" id="import-schedule">Import Schedule</button>
     </form>
     <button class="btn btn-sm btn-secondary mt-1" id="export-reviewed">Export Reviewed</button>
+    <a class="btn btn-sm btn-secondary mt-1" href="/talks">Manage Talks</a>
     {% endif %}
 
     <h3 class="mt-3">Status</h3>
-    <div id="talks" class="mb-5">
-      {% for room_day in room_days %}
-      <div class="roomday" data-id="{{ room_day.id }}" data-vid="{{ room_day.vid }}">
-        {% if level >= 3 %}
-        <button title="Input Youtube video ID for the room" type="button" class="roomday-vid">VID</button>
-        <button title="Add a comment for the room" type="button" class="roomday-comment-button">
-          <img src="/static/icons/info.svg" alt="" width="24" height="24">
-        </button>
-        {% endif %}
-        <a href="/{{ room_day.day }}/{{ room_day.room }}" class="roomday-description">{{ room_day.day }}, {{ room_day.room }}</a>
-        <span> - </span>
-        <span class="roomday-no-vid font-weight-bold text-danger" {{ 'hidden' if room_day.vid }}>(NO VID)</span>
-        <span class="roomday-status font-weight-bold" {{ 'hidden' if not room_day.vid }}>
-          {% if room_day.needs_cut %}<span class="roomday-status-cut">(NEEDS CUT)</span>{% endif %}
-          {% if room_day.needs_review %}<span class="roomday-status-review">(NEEDS REVIEW)</span>{% endif %}
-          {% if room_day.done %}<span class="roomday-status-done text-success">(DONE)</span>{% endif %}
-        </span>
-        <span class="roomday-comment" {{ 'hidden' if not room_day.comment }}>
-          <span> - </span>
-          <span class="roomday-comment-text font-italic">{{ room_day.comment|e }}</span>
-        </span>
-      </div>
-      {% endfor %}
-    </div>
+    <table id="talks" class="table table-sm table-hover bg-white mb-5">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Room / Day</th>
+          <th>Topic</th>
+          <th>Status</th>
+          <th>Done</th>
+          <th class="roomday-comment-col">Comment</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for room_day in room_days %}
+        <tr class="roomday" data-id="{{ room_day.id }}" data-vid="{{ room_day.vid }}">
+          <td class="text-nowrap">
+            {% if level >= 3 %}
+            <button title="Input Youtube video ID for the room" type="button" class="roomday-vid btn btn-sm btn-outline-secondary">Set Video</button>
+            {% endif %}
+          </td>
+          <td><a href="/{{ room_day.day }}/{{ room_day.room }}" class="roomday-description">{{ room_day.day }}, {{ room_day.room }}</a></td>
+          <td>
+            {% if room_day.topic %}
+            {% set tc = topic_colors.get(room_day.topic, ['#6c757d', '#fff']) %}
+            <span class="badge badge-pill" style="background-color:{{ tc[0] }};color:{{ tc[1] }};">{{ room_day.topic|e }}</span>
+            {% endif %}
+          </td>
+          <td class="font-weight-bold">
+            <span class="roomday-no-vid text-danger" {{ 'hidden' if room_day.vid }}>(NO VID)</span>
+            <span class="roomday-status" {{ 'hidden' if not room_day.vid }}>
+              {% if room_day.needs_cut %}<span class="roomday-status-cut">(NEEDS CUT)</span>{% endif %}
+              {% if room_day.needs_review %}<span class="roomday-status-review">(NEEDS REVIEW)</span>{% endif %}
+              {% if room_day.done %}<span class="roomday-status-done text-success">(DONE)</span>{% endif %}
+            </span>
+          </td>
+          <td>{{ room_day.talks_done }}/{{ room_day.talks_total }}</td>
+          <td class="roomday-comment-col">
+            <span class="roomday-comment" {{ 'hidden' if not room_day.comment }}>
+              <span class="roomday-comment-text font-italic">{{ room_day.comment|e }}</span>
+            </span>
+            {% if level >= 3 %}
+            <br>
+            <button title="Edit comment for this room" type="button" class="roomday-comment-button btn btn-sm btn-outline-secondary">Edit</button>
+            <div class="roomday-comment-edit" hidden>
+              <textarea class="form-control form-control-sm roomday-comment-input" rows="2" maxlength="1000">{{ room_day.comment|e }}</textarea>
+              <button type="button" class="roomday-comment-save btn btn-sm btn-primary mt-1">Save</button>
+              <button type="button" class="roomday-comment-cancel btn btn-sm btn-secondary mt-1">Cancel</button>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
     {% endif %}
 
   </div>

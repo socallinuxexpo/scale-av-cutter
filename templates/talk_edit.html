@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SCALE AV Cutter - Edit Talk #{{ talk.id }}</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <link rel="icon" href="data:,">
+</head>
+<body class="bg-light">
+
+  <nav class="navbar navbar-dark bg-dark">
+    <a class="btn btn-sm btn-outline-light mr-2" href="/talks/{{ talk.id }}">Cancel</a>
+    <span class="navbar-brand mb-0">Edit Talk #{{ talk.id }}</span>
+  </nav>
+
+  <div class="container mt-3">
+    <p class="text-danger d-none" id="error-msg"></p>
+    <form id="edit-form">
+      <div class="form-group">
+        <label>Title</label>
+        <input type="text" class="form-control" name="title" value="{{ talk.title|e }}">
+      </div>
+      <div class="form-group">
+        <label>Speakers</label>
+        <input type="text" class="form-control" name="speakers" value="{{ talk.speakers|e }}">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea class="form-control" name="description" rows="4">{{ talk.description|e }}</textarea>
+      </div>
+      <div class="form-group">
+        <label>Path</label>
+        <input type="text" class="form-control" name="path" value="{{ talk.path|e }}">
+      </div>
+      <div class="form-group">
+        <label>Scheduled start</label>
+        <input type="text" class="form-control" name="sched_start" value="{{ talk.sched_start|e }}">
+      </div>
+      <div class="form-group">
+        <label>Scheduled end</label>
+        <input type="text" class="form-control" name="sched_end" value="{{ talk.sched_end|e }}">
+      </div>
+      <div class="form-group">
+        <label>Edit status</label>
+        <select class="form-control" name="edit_status">
+          {% for status in edit_statuses %}
+          <option value="{{ status }}" {{ 'selected' if talk.edit_status == status }}>{{ status }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Review status</label>
+        <select class="form-control" name="review_status">
+          {% for status in review_statuses %}
+          <option value="{{ status }}" {{ 'selected' if talk.review_status == status }}>{{ status }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Video status</label>
+        <select class="form-control" name="video_status">
+          {% for status in video_statuses %}
+          <option value="{{ status }}" {{ 'selected' if talk.video_status == status }}>{{ status }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea class="form-control" name="notes" rows="3">{{ talk.notes|e }}</textarea>
+      </div>
+      <button type="submit" class="btn btn-primary">Save</button>
+      <a class="btn btn-secondary ml-1" href="/talks/{{ talk.id }}">Cancel</a>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('edit-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {};
+      for (const el of form.elements) {
+        if (el.name) data[el.name] = el.value;
+      }
+      fetch('/talks/{{ talk.id }}', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify(data),
+      })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.error) {
+            const msg = document.getElementById('error-msg');
+            msg.textContent = 'ERROR: ' + data.error;
+            msg.classList.remove('d-none');
+          } else {
+            window.location.href = '/talks/{{ talk.id }}';
+          }
+        });
+    });
+  </script>
+
+</body>
+</html>

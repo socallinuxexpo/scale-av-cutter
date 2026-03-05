@@ -72,7 +72,14 @@ def index():
         for room_day in room_days:
             needs_cut = False
             needs_review = False
+            room_done = True
+            talks_done = 0
             for talk in room_day.talks:
+                if talk.video_status not in (VideoStatus.dont_publish, VideoStatus.published):
+                    room_done = False
+                else:
+                    talks_done += 1
+
                 if talk.review_status == ReviewStatus.reviewing:
                     # In edit incomplete state, needs a cut
                     if talk.edit_status == EditStatus.incomplete:
@@ -80,9 +87,12 @@ def index():
                     # Else, needs a review
                     else:
                         needs_review = True
+
             room_day.needs_cut = needs_cut
             room_day.needs_review = needs_review
-            room_day.done = not needs_cut and not needs_review
+            room_day.done = room_done
+            room_day.talks_done = talks_done
+            room_day.talks_total = len(room_day.talks)
 
     # Render
     return render_template("index.html",
@@ -141,7 +151,8 @@ def roomday(day, room):
                            level=level,
                            room_day=room_day,
                            edit_statuses=[EditStatus.incomplete, EditStatus.done, EditStatus.unusable],
-                           review_statuses=[ReviewStatus.reviewing, ReviewStatus.done, ReviewStatus.unusable])
+                           review_statuses=[ReviewStatus.reviewing, ReviewStatus.done, ReviewStatus.unusable],
+                           video_statuses=[VideoStatus.no_video, VideoStatus.need_to_split, VideoStatus.needs_review, VideoStatus.dont_publish, VideoStatus.published])
 
 @app.route('/vid', methods=['POST'])
 @catch_error
@@ -209,8 +220,8 @@ def xml():
     talks = parse_signjson(data)
 
     # Import
-    import_talks(talks, force_add)
-    return {}
+    count = import_talks(talks, force_add)
+    return {'imported': count}
 
 @app.route('/json')
 @catch_error
@@ -396,6 +407,33 @@ def review():
     talk.review_status = status
     return {}
 
+@app.route('/video_status', methods=['POST'])
+@catch_error
+@commit_db
+def video_status():
+    # Check for access level
+    _, level = access()
+    if level < 1:
+        access_error()
+
+    # Fetch/validate parameters
+    talk_id_str = expect(request, 'id')
+    status = expect(request, 'status')
+    try:
+        talk_id = int(talk_id_str)
+        assert status in VideoStatus.values()
+    except:
+        input_error()
+
+    # Get Talk
+    talk = db.session.query(Talk).get(talk_id)
+    if not talk:
+        input_error()
+
+    # Update
+    talk.video_status = status
+    return {}
+
 @app.route('/auto_vids', methods=['POST'])
 @catch_error
 @commit_db
@@ -461,6 +499,125 @@ def clear_vids():
     room_days = room_days_query().all()
     for room_day in room_days:
         room_day.vid = ""
+
+    return {}
+
+@app.route('/streams')
+@catch_error
+def streams():
+    _, level = access(require_name=False)
+    if level < 2:
+        access_error()
+
+    api_key = app.config.get('YOUTUBE_API_KEY')
+    channel_id = app.config.get('YOUTUBE_CHANNEL_ID')
+    if not api_key or not channel_id:
+        error('YOUTUBE_API_KEY and YOUTUBE_CHANNEL_ID must be configured')
+
+    yt = build('youtube', 'v3', developerKey=api_key)
+    res = yt.search().list(
+        part='snippet',
+        channelId=channel_id,
+        eventType='live',
+        type='video',
+        maxResults=50,
+    ).execute()
+
+    streams_list = [
+        {
+            'video_id': item['id']['videoId'],
+            'title': item['snippet']['title'],
+            'description': item['snippet']['description'],
+            'channel_title': item['snippet']['channelTitle'],
+            'published_at': item['snippet']['publishedAt'],
+            'thumbnail': item['snippet']['thumbnails'].get('default', {}).get('url', ''),
+        }
+        for item in res.get('items', [])
+    ]
+
+    empty_room_days = room_days_query().filter(RoomDay.vid == '').all()
+
+    return render_template('streams.html',
+                           streams=streams_list,
+                           room_days=empty_room_days)
+
+@app.route('/talks')
+def talks_list():
+    _, level = access(require_name=False)
+    if level < 3:
+        abort(403)
+    talks = db.session.query(Talk).order_by(Talk.id).all()
+    return render_template('talks_list.html', talks=talks)
+
+@app.route('/talks/<int:talk_id>')
+def talk_show(talk_id):
+    _, level = access(require_name=False)
+    if level < 3:
+        abort(403)
+    talk = db.session.query(Talk).get(talk_id)
+    if not talk:
+        abort(404)
+    room_day = db.session.query(RoomDay).get(talk.room_day_id)
+    return render_template('talk_show.html', talk=talk, room_day=room_day, level=level)
+
+@app.route('/talks/<int:talk_id>', methods=['DELETE'])
+@catch_error
+@commit_db
+def talk_delete(talk_id):
+    _, level = access(require_name=False)
+    if level < 3:
+        access_error()
+    talk = db.session.query(Talk).get(talk_id)
+    if not talk:
+        input_error()
+    db.session.delete(talk)
+    return {}
+
+@app.route('/talks/<int:talk_id>/edit')
+def talk_edit(talk_id):
+    _, level = access(require_name=False)
+    if level < 3:
+        abort(403)
+    talk = db.session.query(Talk).get(talk_id)
+    if not talk:
+        abort(404)
+    return render_template('talk_edit.html', talk=talk,
+                           edit_statuses=EditStatus.values(),
+                           review_statuses=ReviewStatus.values(),
+                           video_statuses=[VideoStatus.no_video, VideoStatus.need_to_split, VideoStatus.needs_review, VideoStatus.dont_publish, VideoStatus.published])
+
+@app.route('/talks/<int:talk_id>', methods=['PATCH'])
+@catch_error
+@commit_db
+def talk_update(talk_id):
+    _, level = access(require_name=False)
+    if level < 3:
+        access_error()
+    talk = db.session.query(Talk).get(talk_id)
+    if not talk:
+        input_error()
+
+    data = request.get_json(force=True)
+
+    str_fields = ['title', 'speakers', 'description', 'path', 'sched_start', 'sched_end', 'notes']
+    for field in str_fields:
+        if field in data:
+            setattr(talk, field, data[field])
+
+    if 'edit_status' in data:
+        if data['edit_status'] not in EditStatus.values():
+            input_error()
+        talk.edit_status = data['edit_status']
+
+    if 'review_status' in data:
+        if data['review_status'] not in ReviewStatus.values():
+            input_error()
+        talk.review_status = data['review_status']
+
+    if 'video_status' in data:
+        if data['video_status'] not in VideoStatus.values():
+            input_error()
+        talk.video_status = data['video_status']
 
     return {}
 

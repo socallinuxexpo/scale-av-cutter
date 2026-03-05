@@ -17,7 +17,7 @@
   <div class="container-fluid">
     <div class="row">
 
-      <div class="col-md-5 border-right overflow-auto p-2" id="left">
+      <div class="col-md-5 border-right p-2" id="left">
         <div id="player" data-vid="{{ room_day.vid }}"></div>
         <div id="no-vid" hidden>No video ID set for this room day yet. If you're an admin, set it from the index page. Otherwise, check back later.</div>
       </div>
@@ -32,6 +32,7 @@
             <button title="Locate this talk in the video, mark its start and end times, and select corresponding edit status" class="btn talk-header">
               <span class="talk-video-time"></span>
               <span class="talk-title">{{ talk.title|safe }}</span>
+              <br><small class="talk-speakers">{{ talk.speakers|e }}</small>
             </button>
             <div class="talk-contents">
               <a href="https://www.socallinuxexpo.org{{ talk.path }}">Talk page <img src="/static/icons/box-arrow-up-right.svg" alt="" width="14" height="14"></a><br>
@@ -89,6 +90,14 @@
                     <label class="form-check-label" for="review-{{ status }}-{{ talk.id }}">{{ status[0]|upper }}{{ status[1:] }}</label>
                   </div>
                   {% endfor %}
+                </div>
+                <div class="video-status p-2">
+                  <strong><label for="video-status-{{ talk.id }}">Video status</label></strong>
+                  <select class="form-control form-control-sm video-status-select" id="video-status-{{ talk.id }}" data-talk-id="{{ talk.id }}">
+                    {% for status in video_statuses %}
+                    <option value="{{ status }}" {{ 'selected' if talk.video_status == status }}>{{ status }}</option>
+                    {% endfor %}
+                  </select>
                 </div>
                 <div><em>Last edited by: <span class="last-edited-by">{{ talk.last_edited_by }}</span></em><br><br></div>
               </div>

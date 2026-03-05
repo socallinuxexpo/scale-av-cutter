@@ -1,5 +1,12 @@
-#left, #right {
+#left {
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+}
+
+#right {
   height: calc(100vh - 56px); /* 56px = Bootstrap navbar height */
+  overflow-y: auto;
 }
 
 .talk {

@@ -79,6 +79,10 @@ document.addEventListener("DOMContentLoaded", function()
       });
     }
 
+    // Video status
+    const videoStatusSelect = talk.querySelector(".video-status-select");
+    videoStatusSelect.addEventListener("change", () => { sendVideoStatus(talk); });
+
     // Notes initialized to their textcontent (from backend)
     const notes = talk.querySelector(".notes");
     notes.value = notes.textContent;
@@ -279,6 +283,7 @@ function disableTalkControls(talk, disabled) {
   talk.querySelectorAll(".talk-contents input").forEach((e) => { e.disabled = disabled; });
   talk.querySelectorAll(".talk-contents button").forEach((e) => { e.disabled = disabled; });
   talk.querySelectorAll(".talk-contents textarea").forEach((e) => { e.disabled = disabled; });
+  talk.querySelectorAll(".talk-contents select").forEach((e) => { e.disabled = disabled; });
   if (!disabled) {
     updateNotesSaveButton(talk);
   }
@@ -356,6 +361,26 @@ function updateTalkControls(talk) {
 function updateLastEditedBy(talk, name) {
   const nameEle = talk.querySelector(".last-edited-by");
   nameEle.textContent = name;
+}
+
+function sendVideoStatus(talk) {
+  const talkId = talk.dataset.id;
+  const status = talk.querySelector(".video-status-select").value;
+
+  const formData = new FormData();
+  formData.append("id", talkId);
+  formData.append("status", status);
+  fetch("/video_status", {
+    method: "POST",
+    body: formData,
+    credentials: "same-origin",
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.error != null) {
+        window.alert("ERROR: " + data.error);
+      }
+    });
 }
 
 function sendNotes(talk, notes, notesSaveButton) {
