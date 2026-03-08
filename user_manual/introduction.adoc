@@ -1,3 +1,7 @@
+:imagesdir: assets
+
+image::header.png[Header, align="center"]
+
 The SCaLE AV Cutter segments multi-hour YouTube live streams into individual videos
 for posting to the
 https://www.youtube.com/@socallinuxexpo[SCaLE YouTube channel].
