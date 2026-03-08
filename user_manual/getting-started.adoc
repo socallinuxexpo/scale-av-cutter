@@ -1,3 +1,5 @@
+:imagesdir: assets
+
 === How to Access the Cutter
 
 . Navigate to the IP address provided by your Team Lead.
@@ -6,10 +8,14 @@
 . Enter the *shared password* for your role, then click *Login*. +
   _Your shared password is provided in the volunteer official communication channel._
 
+image::log-in.png[Log In, align="center"]
+
 === Status List
 
 After logging in, you will see the *Status List* — items named by day and room, matching
 the SCALE Linux Room YouTube channel naming.
+
+image::status-list.png[Status List, align="center"]
 
 [cols="1,3", options="header"]
 |===
@@ -31,7 +37,9 @@ Annotations often clarify the difference.
 
 === Talk Status Colors
 
-After selecting a room from the Status List, individual talks are color-coded by status:
+After selecting a room from the Status List, individual talks are color-coded by status.
+
+image::talks.png[Talks, align="center"]
 
 [cols="1,3", options="header"]
 |===
