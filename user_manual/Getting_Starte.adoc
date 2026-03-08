@@ -1,0 +1,53 @@
+=== How to Access the Cutter
+
+. Navigate to the IP address provided by your Team Lead.
+. Enter your name as the *Display Name*. +
+  _This ensures all work and notes are properly attributed to you for audit and troubleshooting._
+. Enter the *shared password* for your role, then click *Login*. +
+  _Your shared password is provided in the volunteer official communication channel._
+
+=== Status List
+
+After logging in, you will see the *Status List* — items named by day and room, matching
+the SCALE Linux Room YouTube channel naming.
+
+[cols="1,3", options="header"]
+|===
+|Status |Meaning
+
+|*(NO VID)*
+|No talks on schedule — no action needed. OR Admin needs to map video.
+Annotations often clarify the difference.
+
+|*(NEEDS CUT)*
+|Talks are uploaded and need to be cut.
+
+|*(NEEDS REVIEW)*
+|Talks are uploaded and need review.
+
+|*(DONE)*
+|All talks have been edited and reviewed — no action needed.
+|===
+
+=== Talk Status Colors
+
+After selecting a room from the Status List, individual talks are color-coded by status:
+
+[cols="1,3", options="header"]
+|===
+|Color |Meaning
+
+|Yellow
+|Marked *Unusable* by an Editor and Reviewer.
+
+|Green
+|Marked *Done* by an Editor and Reviewer.
+
+|Yellow-Grey
+|Marked *Unusable* by an Editor; currently in Reviewing status.
+
+|Green-Grey
+|Marked *Done* by an Editor; currently in Reviewing status.
+|===
+
+---
