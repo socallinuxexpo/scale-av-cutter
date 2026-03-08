@@ -1,1 +1,57 @@
-x
+== Editor Workflow
+
+Editors perform the initial identification and technical marking of the stream.
+Editors claim an *entire room*, not individual talks. Note that speakers may not show
+up or a talk may occur at a different time than scheduled.
+
+[CAUTION]
+====
+*Coordinate with other volunteers before editing* so that no one accidentally
+overwrites anyone's work.
+====
+
+=== Step by Step
+
+. *Select the room* from the Status List that contains the talk you will edit.
+. *Select the talk* you will edit.
+. *Use the embedded YouTube player* to find the portion of the video matching the provided title and abstract.
+. *Confirm the metadata* — make sure the video content matches the title and abstract. +
++
+[WARNING]
+====
+Automation pulls metadata directly into the YouTube description.
+If the mapping is incorrect, *public metadata will be permanently flawed upon upload.*
+====
+
+. *Set Video Start and Video End* — find the precise start and end points of the presentation and use the *dropper tool* to capture timestamps directly into the input fields.
+
+. *Select the Thumbnail* — navigate to a representative frame (typically the title slide or a clear speaker shot; avoid boring title slides and prefer something visually exciting) and use the dropper tool to set the thumbnail.
+
+. *Add Notes* — this is critical for saving reviewers time. Sign off your notes, because if someone else edits the entry, your display name may be overwritten. +
++
+[IMPORTANT]
+====
+You *must* click the *"Save notes"* button or your note will not be saved.
+====
+
+. *Set the Edit Status:*
+
+[cols="1,3", options="header"]
+|===
+|Status |Meaning
+
+|*Done*
+|Content is complete and ready for review. Automatically transitions the room to
+*Needs Review* for the Reviewer. Talk appears *Green-Grey*.
+
+|*Incomplete*
+|Part of the talk is usable, but it is not a standard full recording. Use the Notes field
+to describe which parts are usable. Automatically transitions to *Needs Review*.
+These talks can sometimes be uploaded with a note rather than discarded.
+
+|*Unusable*
+|Select when: the audio or video is persistently corrupted, or the speaker is
+entirely out of frame. Automatically transitions to *Needs Review*. Talk appears *Yellow-Grey*.
+|===
+
+---
