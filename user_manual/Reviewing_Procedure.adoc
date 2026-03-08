@@ -1,0 +1,42 @@
+== Reviewer Workflow
+
+Reviewers are the *final quality control layer*, ensuring integrity of public-facing
+YouTube content. Reviewers may overwrite any timestamp or thumbnail chosen by an
+Editor if they lack precision.
+
+[CAUTION]
+====
+*Coordinate with other volunteers before reviewing.*
+====
+
+=== Step by Step
+
+. *Select the room* from the Status List containing the talk to review.
+. *Select the talk* you want to review.
+. *Use the YouTube player* to confirm the start and end times selected by the Editor.
+. *Confirm the metadata* — ensure the video content matches the title and abstract. +
++
+[WARNING]
+====
+Automation pulls metadata directly into the YouTube description.
+If the mapping is incorrect, *public metadata will be permanently flawed upon upload.*
+====
+
+. *Set the Review Status:*
+
+[cols="1,3", options="header"]
+|===
+|Status |Meaning
+
+|*Done*
+|Content is verified and ready for upload. The entry is color-coded *Green*, signaling
+it is ready for the automation pipeline.
+
+|*Unusable*
+|Select when: the audio is completely corrupted; slide capture is buggy and unreadable;
+Admin has not indicated the footage is salvageable; or watching it provides no value
+due to errors. The entry appears *Yellow* and will not be uploaded. +
+_If anything is salvageable, mark it Incomplete instead._
+|===
+
+---
