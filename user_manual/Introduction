@@ -1,0 +1,39 @@
+The SCaLE AV Cutter segments multi-hour YouTube live streams into individual videos
+for posting to the
+https://www.youtube.com/@socallinuxexpo[SCaLE YouTube channel].
+
+During SCaLE, rooms are streamed in continuous 6–10 hour blocks to minimize
+technical failure points. Because YouTube Studio is limited to videos under 2 hours,
+the Cutter is necessary to process these extended recordings.
+
+=== Before You Begin
+
+[WARNING]
+====
+*The Cutter cannot handle simultaneous edits.* If two users edit the same room or
+talk simultaneously, the last user to submit will overwrite all previous work.
+
+Work together to explicitly assign distinct rooms to editors and reviewers before
+starting — e.g., Editor A handles "Ballroom A," Editor B handles "Ballroom H."
+====
+
+=== User Roles
+
+Volunteers access the Cutter as one of three roles. The system operates on a
+*high-trust model* using shared passwords rather than individual accounts.
+
+[cols="1,3", options="header"]
+|===
+|Role |Responsibilities
+
+|*Editor*
+|Identifies start and end of talks, selects thumbnails, adds metadata, and assesses
+whether footage is usable. Moves talks from null state → *Needs Review*.
+
+|*Reviewer*
+|Performs quality assurance on Editor work and confirms the video is ready for upload.
+Moves talks from *Needs Review* → final state.
+
+|*Admin*
+|Highest level of access.
+|===
