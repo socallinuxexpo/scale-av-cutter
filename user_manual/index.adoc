@@ -22,6 +22,18 @@ include::introduction.adoc[Introduction]
 
 <<<
 
-include::procedures.adoc[Procedure]
+include::getting-started.adoc[Getting Started]
+
+<<<
+
+include::cutting-procedure.adoc[Cutting Procedure]
+
+<<<
+
+include::reviewing-procedure.adoc[Review Procedure]
+
+<<<
+
+include::from-cutter-to-youtube.adoc[RFrom Cutter to YouTube]
 
 <<<
