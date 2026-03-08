@@ -1,0 +1,13 @@
+== From Cutter to YouTube
+
+After the Reviewer finalizes a talk as *Done*, the backend automation takes over:
+
+. *JSON Export* — the system generates a JSON file containing verified timestamps and XML-derived metadata (titles, abstract links, and tags).
+. *CLI Processing* — Administrators use CLI tools and https://github.com/yt-dlp/yt-dlp[yt-dlp] to download the full day-long stream.
+. *Splitting and Upload* — the backend splits the stream based on JSON timestamps and re-uploads the individual talks.
+
+[NOTE]
+====
+Due to YouTube API restrictions, an Admin must handle the final upload and
+credential management.
+====
