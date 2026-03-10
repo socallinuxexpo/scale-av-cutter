@@ -353,6 +353,9 @@ function updateTalkControls(talk) {
       disableTalkControls(talk, false);
     }
   }
+
+  // Video status is always editable regardless of other states
+  talk.querySelector(".video-status-select").disabled = false;
 }
 
 /*
