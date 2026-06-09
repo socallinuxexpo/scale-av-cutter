@@ -3,6 +3,9 @@
 Flask application to streamline process of splitting captured day-long
 recordings into separate talks.
 
+**Privacy:** See [tools/PRIVACY.md](./tools/PRIVACY.md) for how this tool handles
+data accessed through YouTube API Services.
+
 [!NOTE]
 If you only want to run the [tools](./tools) for downloading,
 cutting, and uploading videos, you can just install the dependencies described
